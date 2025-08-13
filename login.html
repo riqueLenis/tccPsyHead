@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PsyHead - Login</title>
+    <link rel="icon" href="assets/logo.png" type="image/x-icon">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="font-sans bg-bg-light flex items-center justify-center min-h-screen">
+
+    <div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
+        <div class="text-center mb-8">
+            <img src="assets/logoPsy.png" class="logoPsyLogin">
+            <p class="text-gray-600 mt-2">Seu sistema inteligente para gestão psicológica.</p>
+        </div>
+
+        <form id="loginForm" class="space-y-6">
+    <div class="form-group">
+        <label for="username" class="form-label">E-mail</label>
+        <input type="email" id="username" name="username" required
+               class="form-input"
+               placeholder="seu.email@exemplo.com">
+        <p id="usernameError" class="form-error-message hidden"></p>
+    </div>
+    
+    <div class="form-group">
+        <label for="password" class="form-label">Senha</label>
+        <input type="password" id="password" name="password" required
+               class="form-input"
+               placeholder="••••••••">
+        <p id="passwordError" class="form-error-message hidden"></p>
+    </div>
+
+    <div class="form-group">
+        <label for="userType" class="form-label">Tipo de Usuário</label>
+        <select id="userType" name="userType" required class="form-input">
+            <option value="terapeuta">Terapeuta</option>
+            <option value="responsavel">Paciente / Responsável</option>
+        </select>
+    </div>
+
+    <div id="credentialsError" class="form-error-message text-center hidden"></div>
+
+    <div class="pt-4">
+        <button type="submit" class="btn btn-primary btn-full">
+            Entrar no Sistema
+        </button>
+    </div>
+</form>
+
+        <div class="mt-6 text-center">
+            <a href="#" class="text-sm text-primary-light hover:underline">Esqueceu sua senha?</a>
+        </div>
+    </div>
+
+    <script src="js/login.js"></script>
+</body>
+</html>
