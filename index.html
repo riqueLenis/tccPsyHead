@@ -1,29 +1,54 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PsyHead</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css"> 
+    <link rel="stylesheet" href="css/style.css">
     <link rel="icon" href="assets/logo.png" type="image/x-icon">
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.13/index.global.min.js'></script>
 </head>
+
 <body class="font-sans bg-bg-light text-text-dark">
     <div class="flex min-h-screen">
         <aside class="w-64 bg-primary-dark text-text-light p-4 shadow-lg fixed h-full overflow-y-auto pt-20 sidebar">
             <nav>
                 <ul>
-                    <li class="mb-2"><a href="#" id="dashboard-link" class="flex items-center p-3 rounded-lg hover:bg-white/10 active-nav-link transition-colors duration-200"><i class="fas fa-tachometer-alt mr-3 text-lg"></i> Dashboard</a></li>
-                    <li class="mb-2"><a href="#" id="pacientes-link" class="flex items-center p-3 rounded-lg hover:bg-white/10 transition-colors duration-200"><i class="fas fa-user-plus mr-3 text-lg"></i> Cadastro de Pacientes</a></li>
-                    <li class="mb-2"><a href="#" id="sessoes-link" class="flex items-center p-3 rounded-lg hover:bg-white/10 transition-colors duration-200"><i class="fas fa-calendar-alt mr-3 text-lg"></i> Sessões de Atendimento</a></li>
-                    <li class="mb-2"><a href="#" id="financeiro-link" class="flex items-center p-3 rounded-lg hover:bg-white/10 transition-colors duration-200"><i class="fas fa-dollar-sign mr-3 text-lg"></i> Gestão Financeira</a></li>
-                    <li class="mb-2"><a href="#" id="agenda-link" class="flex items-center p-3 rounded-lg hover:bg-white/10 transition-colors duration-200"><i class="fas fa-clock mr-3 text-lg"></i> Agenda de Atendimentos</a></li>
-                    <li class="mb-2"><a href="#" id="medicacoes-link" class="flex items-center p-3 rounded-lg hover:bg-white/10 transition-colors duration-200"><i class="fas fa-pills mr-3 text-lg"></i> Acompanhamento de Medicações</a></li>
-                    <li class="mb-2"><a href="#" id="chat-link" class="flex items-center p-3 rounded-lg hover:bg-white/10 transition-colors duration-200"><i class="fas fa-comments mr-3 text-lg"></i> Chat Seguro</a></li>
-                    <li class="mb-2"><a href="#" id="avaliacoes-link" class="flex items-center p-3 rounded-lg hover:bg-white/10 transition-colors duration-200"><i class="fas fa-star mr-3 text-lg"></i> Avaliações dos Atendimentos</a></li>
-                    <li class="mb-2"><a href="#" id="relatorios-link" class="flex items-center p-3 rounded-lg hover:bg-white/10 transition-colors duration-200"><i class="fas fa-chart-bar mr-3 text-lg"></i> Relatórios Centralizados</a></li>
-                    <li class="mb-2"><a href="#" id="config-link" class="flex items-center p-3 rounded-lg hover:bg-white/10 transition-colors duration-200"><i class="fas fa-cog mr-3 text-lg"></i> Configurações</a></li>
-                    <li class="mb-2"><a href="#" id="logout-link" class="flex items-center p-3 rounded-lg hover:bg-white/10 transition-colors duration-200"><i class="fas fa-sign-out-alt mr-3 text-lg"></i> Sair</a></li>
+                    <li class="mb-2"><a href="#" id="dashboard-link"
+                            class="flex items-center p-3 rounded-lg hover:bg-white/10 active-nav-link transition-colors duration-200"><i
+                                class="fas fa-tachometer-alt mr-3 text-lg"></i> Dashboard</a></li>
+                    <li class="mb-2"><a href="#" id="pacientes-link"
+                            class="flex items-center p-3 rounded-lg hover:bg-white/10 transition-colors duration-200"><i
+                                class="fas fa-user-plus mr-3 text-lg"></i> Cadastro de Pacientes</a></li>
+                    <li class="mb-2"><a href="#" id="sessoes-link"
+                            class="flex items-center p-3 rounded-lg hover:bg-white/10 transition-colors duration-200"><i
+                                class="fas fa-calendar-alt mr-3 text-lg"></i> Sessões de Atendimento</a></li>
+                    <li class="mb-2"><a href="#" id="financeiro-link"
+                            class="flex items-center p-3 rounded-lg hover:bg-white/10 transition-colors duration-200"><i
+                                class="fas fa-dollar-sign mr-3 text-lg"></i> Gestão Financeira</a></li>
+                    <li class="mb-2"><a href="#" id="agenda-link"
+                            class="flex items-center p-3 rounded-lg hover:bg-white/10 transition-colors duration-200"><i
+                                class="fas fa-clock mr-3 text-lg"></i> Agenda de Atendimentos</a></li>
+                    <li class="mb-2"><a href="#" id="medicacoes-link"
+                            class="flex items-center p-3 rounded-lg hover:bg-white/10 transition-colors duration-200"><i
+                                class="fas fa-pills mr-3 text-lg"></i> Acompanhamento de Medicações</a></li>
+                    <li class="mb-2"><a href="#" id="chat-link"
+                            class="flex items-center p-3 rounded-lg hover:bg-white/10 transition-colors duration-200"><i
+                                class="fas fa-comments mr-3 text-lg"></i> Chat Seguro</a></li>
+                    <li class="mb-2"><a href="#" id="avaliacoes-link"
+                            class="flex items-center p-3 rounded-lg hover:bg-white/10 transition-colors duration-200"><i
+                                class="fas fa-star mr-3 text-lg"></i> Avaliações dos Atendimentos</a></li>
+                    <li class="mb-2"><a href="#" id="relatorios-link"
+                            class="flex items-center p-3 rounded-lg hover:bg-white/10 transition-colors duration-200"><i
+                                class="fas fa-chart-bar mr-3 text-lg"></i> Relatórios Centralizados</a></li>
+                    <li class="mb-2"><a href="#" id="config-link"
+                            class="flex items-center p-3 rounded-lg hover:bg-white/10 transition-colors duration-200"><i
+                                class="fas fa-cog mr-3 text-lg"></i> Configurações</a></li>
+                    <li class="mb-2"><a href="#" id="logout-link"
+                            class="flex items-center p-3 rounded-lg hover:bg-white/10 transition-colors duration-200"><i
+                                class="fas fa-sign-out-alt mr-3 text-lg"></i> Sair</a></li>
                 </ul>
             </nav>
         </aside>
@@ -49,7 +74,8 @@
                 <section id="dashboard-section" class="content-section active">
                     <div class="dashboard-header">
                         <h2 class="section-title">Bem-vindo(a) de volta, Henrique!</h2>
-                        <p class="section-subtitle">Aqui está um resumo rápido da sua clínica hoje, 14 de agosto de 2025.</p>
+                        <p class="section-subtitle">Aqui está um resumo rápido da sua clínica hoje, 14 de agosto de
+                            2025.</p>
                     </div>
 
                     <div class="stats-grid">
@@ -57,289 +83,304 @@
                             <div class="stat-card-icon icon-pacientes">
                                 <i class="fas fa-users"></i>
                             </div>
-                        <div class="stat-card-info">
-                            <span class="stat-card-title">Pacientes Ativos</span>
-                            <span class="stat-card-value">12</span>
+                            <div class="stat-card-info">
+                                <span class="stat-card-title">Pacientes Ativos</span>
+                                <span class="stat-card-value">12</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-icon icon-sessoes">
+                                <i class="fas fa-calendar-check"></i>
+                            </div>
+                            <div class="stat-card-info">
+                                <span class="stat-card-title">Sessões Hoje</span>
+                                <span class="stat-card-value">4</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-icon icon-financeiro">
+                                <i class="fas fa-dollar-sign"></i>
+                            </div>
+                            <div class="stat-card-info">
+                                <span class="stat-card-title">Faturamento (Mês)</span>
+                                <span class="stat-card-value">R$ 4.350,00</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-icon icon-avaliacoes">
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <div class="stat-card-info">
+                                <span class="stat-card-title">Avaliações Pendentes</span>
+                                <span class="stat-card-value">2</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-card-icon icon-sessoes">
-                            <i class="fas fa-calendar-check"></i>
-                        </div>
-                        <div class="stat-card-info">
-                            <span class="stat-card-title">Sessões Hoje</span>
-                            <span class="stat-card-value">4</span>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-card-icon icon-financeiro">
-                            <i class="fas fa-dollar-sign"></i>
-                        </div>
-                        <div class="stat-card-info">
-                            <span class="stat-card-title">Faturamento (Mês)</span>
-                            <span class="stat-card-value">R$ 4.350,00</span>
-                        </div>
-                    </div>
-                <div class="stat-card">
-                    <div class="stat-card-icon icon-avaliacoes">
-                        <i class="fas fa-star"></i>
-                    </div>
-                        <div class="stat-card-info">
-                            <span class="stat-card-title">Avaliações Pendentes</span>
-                            <span class="stat-card-value">2</span>
-                        </div>
-                    </div>
-                </div>
 
 
-                <div class="feature-showcase">
-                    <h3 class="showcase-title">Explore o Potencial do PsyHead</h3>
-                <div class="feature-grid">
-                    <a href="#" class="feature-card" data-target="pacientes-link">
-                        <div class="feature-card-icon"><i class="fas fa-user-plus"></i></div>
-                        <h4 class="feature-card-title">Gestão de Pacientes</h4>
-                        <p class="feature-card-desc">Centralize prontuários, históricos e dados pessoais em um único lugar seguro.</p>
-                        <span class="feature-card-link">Acessar Módulo <i class="fas fa-arrow-right"></i></span>
-                    </a>
-                    <a href="#" class="feature-card" data-target="agenda-link">
-                        <div class="feature-card-icon"><i class="fas fa-calendar-alt"></i></div>
-                        <h4 class="feature-card-title">Agenda Inteligente</h4>
-                        <p class="feature-card-desc">Organize seus horários, agende sessões e evite conflitos com facilidade.</p>
-                        <span class="feature-card-link">Ver Agenda <i class="fas fa-arrow-right"></i></span>
-                    </a>
-                    <a href="#" class="feature-card" data-target="financeiro-link">
-                        <div class="feature-card-icon"><i class="fas fa-file-invoice-dollar"></i></div>
-                        <h4 class="feature-card-title">Controle Financeiro</h4>
-                        <p class="feature-card-desc">Gerencie pagamentos, despesas e visualize a saúde financeira da sua clínica.</p>
-                        <span class="feature-card-link">Ver Financeiro <i class="fas fa-arrow-right"></i></span>
-                    </a>
-                    <a href="#" class="feature-card" data-target="chat-link">
-                        <div class="feature-card-icon"><i class="fas fa-comments"></i></div>
-                        <h4 class="feature-card-title">Chat Seguro</h4>
-                        <p class="feature-card-desc">Comunique-se com pacientes e responsáveis com total privacidade e segurança.</p>
-                        <span class="feature-card-link">Abrir Chat <i class="fas fa-arrow-right"></i></span>
-                    </a>
+                    <div class="feature-showcase">
+                        <h3 class="showcase-title">Explore o Potencial do PsyHead</h3>
+                        <div class="feature-grid">
+                            <a href="#" class="feature-card" data-target="pacientes-link">
+                                <div class="feature-card-icon"><i class="fas fa-user-plus"></i></div>
+                                <h4 class="feature-card-title">Gestão de Pacientes</h4>
+                                <p class="feature-card-desc">Centralize prontuários, históricos e dados pessoais em um
+                                    único lugar seguro.</p>
+                                <span class="feature-card-link">Acessar Módulo <i class="fas fa-arrow-right"></i></span>
+                            </a>
+                            <a href="#" class="feature-card" data-target="agenda-link">
+                                <div class="feature-card-icon"><i class="fas fa-calendar-alt"></i></div>
+                                <h4 class="feature-card-title">Agenda Inteligente</h4>
+                                <p class="feature-card-desc">Organize seus horários, agende sessões e evite conflitos
+                                    com facilidade.</p>
+                                <span class="feature-card-link">Ver Agenda <i class="fas fa-arrow-right"></i></span>
+                            </a>
+                            <a href="#" class="feature-card" data-target="financeiro-link">
+                                <div class="feature-card-icon"><i class="fas fa-file-invoice-dollar"></i></div>
+                                <h4 class="feature-card-title">Controle Financeiro</h4>
+                                <p class="feature-card-desc">Gerencie pagamentos, despesas e visualize a saúde
+                                    financeira da sua clínica.</p>
+                                <span class="feature-card-link">Ver Financeiro <i class="fas fa-arrow-right"></i></span>
+                            </a>
+                            <a href="#" class="feature-card" data-target="chat-link">
+                                <div class="feature-card-icon"><i class="fas fa-comments"></i></div>
+                                <h4 class="feature-card-title">Chat Seguro</h4>
+                                <p class="feature-card-desc">Comunique-se com pacientes e responsáveis com total
+                                    privacidade e segurança.</p>
+                                <span class="feature-card-link">Abrir Chat <i class="fas fa-arrow-right"></i></span>
+                            </a>
+                        </div>
                     </div>
-                </div>
-            </section>
+                </section>
 
-            <section id="pacientes-section" class="content-section hidden">
-                <div id="pacientes-view-list">
+                <section id="pacientes-section" class="content-section hidden">
+
+                    <div id="pacientes-view-list">
+                        <div class="page-header">
+                            <h2 class="section-title">Meus Pacientes</h2>
+                            <button id="show-add-paciente-form-btn" class="btn btn-primary">
+                                <i class="fas fa-plus mr-2"></i> Adicionar Novo Paciente
+                            </button>
+                        </div>
+                        <div class="patient-grid">
+                        </div>
+                    </div>
+
+                    <div id="pacientes-view-form" class="hidden">
+                        <div class="page-header">
+                            <h2 class="section-title">Adicionar Novo Paciente</h2>
+                            <button id="back-to-list-btn" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left mr-2"></i> Voltar para a Lista
+                            </button>
+                        </div>
+                        <form id="pacienteForm">
+                            <input type="hidden" id="pacienteId" name="pacienteId">
+                            <div>
+                                <h3 class="form-section-title">Dados Pessoais</h3>
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label for="nome" class="form-label">Nome Completo</label>
+                                        <input type="text" id="nome" name="nome" required class="form-input">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="dataNascimento" class="form-label">Data de Nascimento</label>
+                                        <input type="date" id="dataNascimento" name="dataNascimento" required
+                                            class="form-input">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="sexo" class="form-label">Sexo</label>
+                                        <select id="sexo" name="sexo" required class="form-input">
+                                            <option value="">Selecione</option>
+                                            <option value="Masculino">Masculino</option>
+                                            <option value="Feminino">Feminino</option>
+                                            <option value="Outro">Outro</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="cpf" class="form-label">CPF</label>
+                                        <input type="text" id="cpf" name="cpf" placeholder="000.000.000-00"
+                                            class="form-input">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="rg" class="form-label">RG</label>
+                                        <input type="text" id="rg" name="rg" class="form-input">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="nacionalidade" class="form-label">Nacionalidade</label>
+                                        <input type="text" id="nacionalidade" name="nacionalidade" value="Brasileira"
+                                            class="form-input">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-actions">
+                                <button type="reset" class="btn btn-secondary">Limpar</button>
+                                <button type="submit" class="btn btn-primary">Salvar Paciente</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div id="pacientes-view-detail" class="hidden">
+                        <div class="page-header">
+                            <h2 id="detail-patient-name" class="section-title">Nome do Paciente</h2>
+                            <div>
+                                <button id="edit-patient-btn" class="btn btn-primary">
+                                    <i class="fas fa-pencil-alt mr-2"></i> Editar
+                                </button>
+                                <button id="delete-patient-btn" class="btn btn-danger">
+                                    <i class="fas fa-trash-alt mr-2"></i> Excluir
+                                </button>
+                                <button id="detail-back-to-list-btn" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left mr-2"></i> Voltar para a Lista
+                                </button>
+                            </div>
+                        </div>
+                        <div class="patient-detail-card">
+                        </div>
+                    </div>
+                </section>
+
+                <!--sessão de sessões-->
+                <section id="sessoes-section" class="content-section hidden">
                     <div class="page-header">
-                        <h2 class="section-title">Meus Pacientes</h2>
-                        <button id="show-add-paciente-form-btn" class="btn btn-primary">
-                            <i class="fas fa-plus mr-2"></i> Adicionar Novo Paciente
+                        <h2 class="section-title">Sessões de Atendimento</h2>
+                    </div>
+
+                    <div class="session-controls">
+                        <div class="form-group">
+                            <label for="patient-selector" class="form-label">Selecione um Paciente:</label>
+                            <select id="patient-selector" class="form-input">
+                                <option value="">Carregando pacientes...</option>
+                            </select>
+                        </div>
+                        <button id="show-add-session-form-btn" class="btn btn-primary" disabled>
+                            <i class="fas fa-plus mr-2"></i> Registrar Nova Sessão
                         </button>
                     </div>
 
-                <div class="patient-grid">
-                    <div class="patient-card">
-                        <div class="patient-card-header">
-                            <div class="patient-avatar">
-                                <img src="https://i.pravatar.cc/150?img=1" alt="Avatar de Ana Beatriz">
-                            </div>
-                            <div class="patient-info">
-                                <h4 class="patient-name">Ana Beatriz Costa</h4>
-                                <span class="patient-status status-active">Ativo</span>
-                            </div>
-                        </div>
-                    <div class="patient-card-body">
-                        <p><i class="fas fa-cake-candles icon-info"></i> 28 anos</p>
-                        <p><i class="fas fa-mobile-alt icon-info"></i> (11) 98765-4321</p>
-                        <p><i class="fas fa-calendar-day icon-info"></i> Próxima sessão: 20/08/2025</p>
+                    <div id="session-list-container" class="mt-4">
+                        <p class="info-message">Por favor, selecione um paciente para ver suas sessões.</p>
                     </div>
-                    <div class="patient-card-actions">
-                        <a href="#" class="btn btn-secondary btn-sm">Ver Prontuário</a>
-                        <a href="#" class="btn btn-primary btn-sm">Agendar</a>
-                    </div>
-                </div>
 
-                <div class="patient-card">
-                    <div class="patient-card-header">
-                        <div class="patient-avatar">
-                            <img src="https://i.pravatar.cc/150?img=2" alt="Avatar de Carlos Eduardo">
-                        </div>
-                        <div class="patient-info">
-                            <h4 class="patient-name">Carlos Eduardo Lima</h4>
-                            <span class="patient-status status-inactive">Inativo</span>
-                        </div>
-                    </div>
-                    <div class="patient-card-body">
-                        <p><i class="fas fa-cake-candles icon-info"></i> 42 anos</p>
-                        <p><i class="fas fa-mobile-alt icon-info"></i> (21) 91234-5678</p>
-                        <p><i class="fas fa-calendar-day icon-info"></i> Nenhuma sessão agendada</p>
-                    </div>
-                    <div class="patient-card-actions">
-                        <a href="#" class="btn btn-secondary btn-sm">Ver Prontuário</a>
-                        <a href="#" class="btn btn-primary btn-sm">Agendar</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-            <div id="pacientes-view-form" class="hidden">
-                <div class="page-header">
-                    <h2 class="section-title">Adicionar Novo Paciente</h2>
-                    <button id="back-to-list-btn" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left mr-2"></i> Voltar para a Lista
-                    </button>
-                </div>
-                    <form id="pacienteForm">
-                        <div>
-                            <h3 class="form-section-title">Dados Pessoais</h3>
-                        <div class="form-grid">
-                        <div class="form-group">
-                            <label for="nome" class="form-label">Nome Completo</label>
-                            <input type="text" id="nome" name="nome" required class="form-input">
-                        </div>
-                    <div class="form-group">
-                        <label for="dataNascimento" class="form-label">Data de Nascimento</label>
-                        <input type="date" id="dataNascimento" name="dataNascimento" required class="form-input">
-                    </div>
-                        <div class="form-group">
-                            <label for="sexo" class="form-label">Sexo</label>
-                                <select id="sexo" name="sexo" required class="form-input">
-                                    <option value="">Selecione</option>
-                                    <option value="Masculino">Masculino</option>
-                                    <option value="Feminino">Feminino</option>
-                                    <option value="Outro">Outro</option>
-                                </select>
-                            </div>
-                    <div class="form-group">
-                        <label for="cpf" class="form-label">CPF</label>
-                        <input type="text" id="cpf" name="cpf" placeholder="000.000.000-00" class="form-input">
-                    </div>
-                    <div class="form-group">
-                        <label for="rg" class="form-label">RG</label>
-                        <input type="text" id="rg" name="rg" class="form-input">
-                    </div>
-                    <div class="form-group">
-                        <label for="nacionalidade" class="form-label">Nacionalidade</label>
-                        <input type="text" id="nacionalidade" name="nacionalidade" value="Brasileira" class="form-input">
-                    </div>
-                </div>
-            </div>
-
-                <div>
-                    <h3 class="form-section-title">Contato</h3>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="telefone" class="form-label">Telefone</label>
-                        <input type="tel" id="telefone" name="telefone" placeholder="(XX) XXXX-XXXX" class="form-input">
-                    </div>
-                    <div class="form-group">
-                        <label for="celular" class="form-label">Celular</label>
-                        <input type="tel" id="celular" name="celular" placeholder="(XX) 9XXXX-XXXX" required class="form-input">
-                    </div>
-                    <div class="form-group col-span-2">
-                        <label for="email" class="form-label">E-mail</label>
-                        <input type="email" id="email" name="email" class="form-input">
-                    </div>
-                </div>
-            </div>
-
-                <div>
-                    <h3 class="form-section-title">Endereço</h3>
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label for="cep" class="form-label">CEP</label>
-                                <input type="text" id="cep" name="cep" placeholder="XXXXX-XXX" class="form-input">
-                            </div>
-                            <div class="form-group">
-                                <label for="logradouro" class="form-label">Logradouro</label>
-                                <input type="text" id="logradouro" name="logradouro" class="form-input">
-                            </div>
-                            <div class="form-group">
-                                <label for="numero" class="form-label">Número</label>
-                                <input type="text" id="numero" name="numero" class="form-input">
-                            </div>
-                            <div class="form-group">
-                                <label for="complemento" class="form-label">Complemento</label>
-                                <input type="text" id="complemento" name="complemento" class="form-input">
-                            </div>
-                            <div class="form-group">
-                                <label for="bairro" class="form-label">Bairro</label>
-                                <input type="text" id="bairro" name="bairro" class="form-input">
-                            </div>
-                            <div class="form-group">
-                                <label for="cidade" class="form-label">Cidade</label>
-                                <input type="text" id="cidade" name="cidade" class="form-input">
-                            </div>
-                            <div class="form-group">
-                                <label for="estado" class="form-label">Estado</label>
-                                <select id="estado" name="estado" class="form-input">
-                                    <option value="">Selecione</option>
-                                    <option value="SP">São Paulo</option>
-                                    <option value="RJ">Rio de Janeiro</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div>
-                        <h3 class="form-section-title">Dados Clínicos e Comportamentais</h3>
-                            <div class="form-grid-single">
+                    <div id="session-form-container" class="hidden mt-4">
+                        <h3 class="form-section-title">Registrar Nova Sessão para <span id="session-form-patient-name"
+                                class="text-primary-light"></span></h3>
+                        <form id="sessionForm">
+                            <div class="form-grid">
                                 <div class="form-group">
-                                    <label for="historicoMedico" class="form-label">Histórico Médico Relevante</label>
-                                    <textarea id="historicoMedico" name="historicoMedico" rows="3" class="form-input"></textarea>
+                                    <label for="data_sessao" class="form-label">Data e Hora da Sessão</label>
+                                    <input type="datetime-local" id="data_sessao" name="data_sessao" required
+                                        class="form-input">
                                 </div>
                                 <div class="form-group">
-                                    <label for="motivacaoConsulta" class="form-label">Principal Motivo da Consulta</label>
-                                    <textarea id="motivacaoConsulta" name="motivacaoConsulta" rows="3" required class="form-input"></textarea>
+                                    <label for="duracao_minutos" class="form-label">Duração (minutos)</label>
+                                    <input type="number" id="duracao_minutos" name="duracao_minutos" value="60" required
+                                        class="form-input">
+                                </div>
+                                <div class="form-group">
+                                    <label for="tipo_sessao" class="form-label">Tipo de Sessão</label>
+                                    <input type="text" id="tipo_sessao" name="tipo_sessao" value="Individual" required
+                                        class="form-input">
+                                </div>
+                                <div class="form-group">
+                                    <label for="valor_sessao" class="form-label">Valor (R$)</label>
+                                    <input type="number" id="valor_sessao" name="valor_sessao" step="0.01"
+                                        placeholder="150.00" class="form-input">
+                                </div>
+                                <div class="form-group col-span-2">
+                                    <label for="status_pagamento" class="form-label">Status do Pagamento</label>
+                                    <select id="status_pagamento" name="status_pagamento" class="form-input">
+                                        <option value="Pendente">Pendente</option>
+                                        <option value="Pago">Pago</option>
+                                        <option value="Aguardando">Aguardando</option>
+                                    </select>
+                                </div>
+                                <div class="form-group col-span-2">
+                                    <label for="resumo_sessao" class="form-label">Anotações da Sessão
+                                        (Confidencial)</label>
+                                    <textarea id="resumo_sessao" name="resumo_sessao" rows="5" class="form-input"
+                                        placeholder="Digite aqui as anotações sobre a sessão..."></textarea>
                                 </div>
                             </div>
+                            <div class="form-actions">
+                                <button type="button" id="cancel-session-form-btn"
+                                    class="btn btn-secondary">Cancelar</button>
+                                <button type="submit" class="btn btn-primary">Salvar Sessão</button>
+                            </div>
+                        </form>
+                    </div>
+                </section>
+
+                <!--sessão de gestão financeira-->
+                <section id="financeiro-section" class="content-section hidden">
+                    <div class="page-header">
+                        <h2 class="section-title">Gestão Financeira</h2>
+                    </div>
+
+                    <div id="finance-summary-grid" class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-card-icon icon-financeiro">
+                                <i class="fas fa-dollar-sign"></i>
+                            </div>
+                            <div class="stat-card-info">
+                                <span class="stat-card-title">Faturamento do Mês</span>
+                                <span id="faturamento-mes" class="stat-card-value">R$ 0,00</span>
+                            </div>
                         </div>
-
-                        <div class="form-actions">
-                            <button type="reset" class="btn btn-secondary">Limpar</button>
-                            <button type="submit" class="btn btn-primary">Salvar Paciente</button>
+                        <div class="stat-card">
+                            <div class="stat-card-icon icon-avaliacoes">
+                                <i class="fas fa-hourglass-half"></i>
+                            </div>
+                            <div class="stat-card-info">
+                                <span class="stat-card-title">A Receber (Pendente)</span>
+                                <span id="a-receber" class="stat-card-value">R$ 0,00</span>
+                            </div>
                         </div>
-                    </form>
-                </div>
-            </section>
+                        <div class="stat-card">
+                            <div class="stat-card-icon icon-sessoes">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="stat-card-info">
+                                <span class="stat-card-title">Sessões Pagas (Mês)</span>
+                                <span id="sessoes-pagas" class="stat-card-value">0</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-icon icon-pacientes">
+                                <i class="fas fa-exclamation-circle"></i>
+                            </div>
+                            <div class="stat-card-info">
+                                <span class="stat-card-title">Sessões Pendentes (Mês)</span>
+                                <span id="sessoes-pendentes" class="stat-card-value">0</span>
+                            </div>
+                        </div>
+                    </div>
 
-                <section id="sessoes-section" class="content-section bg-white p-8 rounded-lg shadow-md hidden">
-                    <h2 class="section-title">Sessões de Atendimento</h2>
-                    <p class="text-lg text-gray-700">Aqui você poderá criar e visualizar as sessões de atendimento.</p>
+                    <div class="transactions-container bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="form-section-title">Últimas Transações</h3>
+                        <table class="transactions-table">
+                            <thead>
+                                <tr>
+                                    <th>Paciente</th>
+                                    <th>Data da Sessão</th>
+                                    <th>Valor</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="transactions-table-body">
+                            </tbody>
+                        </table>
+                    </div>
                 </section>
 
-                <section id="financeiro-section" class="content-section bg-white p-8 rounded-lg shadow-md hidden">
-                    <h2 class="section-title">Gestão Financeira da Clínica</h2>
-                    <p class="text-lg text-gray-700">Controle suas despesas, receitas e gere relatórios financeiros.</p>
-                </section>
+                <!--sessão da agenda inteligente-->
+                <section id="agenda-section" class="content-section hidden">
+                    <div class="page-header">
+                        <h2 class="section-title">Agenda de Atendimentos</h2>
+                    </div>
 
-                <section id="agenda-section" class="content-section bg-white p-8 rounded-lg shadow-md hidden">
-                    <h2 class="section-title">Agenda de Atendimentos</h2>
-                    <p class="text-lg text-gray-700">Agendamento, remarcação e gerenciamento de sessões.</p>
-                </section>
-
-                <section id="medicacoes-section" class="content-section bg-white p-8 rounded-lg shadow-md hidden">
-                    <h2 class="section-title">Acompanhamento de Medicações</h2>
-                    <p class="text-lg text-gray-700">Registro de medicações, horários e lembretes para pacientes.</p>
-                </section>
-
-                <section id="chat-section" class="content-section bg-white p-8 rounded-lg shadow-md hidden">
-                    <h2 class="section-title">Chat Seguro entre Pais e Terapeutas</h2>
-                    <p class="text-lg text-gray-700">Comunicação criptografada com envio de mensagens e arquivos.</p>
-                </section>
-
-                <section id="avaliacoes-section" class="content-section bg-white p-8 rounded-lg shadow-md hidden">
-                    <h2 class="section-title">Avaliações dos Atendimentos pelos Pais</h2>
-                    <p class="text-lg text-gray-700">Feedback direto dos responsáveis após as sessões.</p>
-                </section>
-
-                <section id="relatorios-section" class="content-section bg-white p-8 rounded-lg shadow-md hidden">
-                    <h2 class="section-title">Relatórios Diários Centralizados</h2>
-                    <p class="text-lg text-gray-700">Geração e armazenamento de relatórios por paciente/sessão.</p>
-                </section>
-
-                <section id="config-section" class="content-section bg-white p-8 rounded-lg shadow-md hidden">
-                    <h2 class="section-title">Configurações</h2>
-                    <p class="text-lg text-gray-700">Gerencie as configurações do sistema e controle de acesso.</p>
-                </section>
-
-                <section id="logout-section" class="content-section bg-white p-8 rounded-lg shadow-md hidden">
-                    <h2 class="section-title">Sair</h2>
-                    <p class="text-lg text-gray-700">Clique para sair da sua sessão de forma segura.</p>
+                    <div id="calendar-container" class="bg-white p-4 sm:p-6 rounded-lg shadow-md">
+                        <div id="calendar"></div>
+                    </div>
                 </section>
 
             </main>
@@ -348,4 +389,5 @@
 
     <script src="js/script.js"></script>
 </body>
+
 </html>
