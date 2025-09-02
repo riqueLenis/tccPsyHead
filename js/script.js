@@ -523,30 +523,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (targetLinkId) document.getElementById(targetLinkId) ?.click();
         });
     });
-    if (pacientesViewList) {
-        pacientesViewList.addEventListener('click', (event) => {
-            if (event.target.classList.contains('btn-view-prontuario')) {
-                event.preventDefault();
-                const pacienteId = event.target.dataset.id;
-                mostrarDetalhesPaciente(pacienteId);
-            }
-        });
-    }
-    if (detailHeader) {
-        detailHeader.addEventListener('click', (event) => {
-            const pacienteId = document.querySelector('#pacientes-view-detail').dataset.pacienteId;
-
-            if (event.target.id === 'edit-patient-btn') {
-                const pacienteId = pacientesViewDetail.dataset.pacienteId;
-                abrirFormularioEdicao(pacienteId);
-            }
-            if (event.target.id === 'delete-patient-btn') {
-                excluirPaciente(pacienteId);
-            }
-        });
-    }
     if (showFormBtn) {
         showFormBtn.addEventListener('click', () => {
+            console.log('Botão "Adicionar Paciente" CLICADO!');
             pacienteForm.reset();
             pacienteIdInput.value = '';
             document.querySelector('#pacientes-view-form .section-title').textContent = 'Adicionar Novo Paciente';
@@ -572,6 +551,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const pacienteId = pacientesViewDetail.dataset.pacienteId;
             const editBtn = event.target.closest('#edit-patient-btn');
             const deleteBtn = event.target.closest('#delete-patient-btn');
+
             if (editBtn) abrirFormularioEdicao(pacienteId);
             if (deleteBtn) excluirPaciente(pacienteId);
         });

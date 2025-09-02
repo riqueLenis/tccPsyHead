@@ -59,6 +59,9 @@ a:hover {
 .content-section.hidden {
     display: none;
 }
+.hidden {
+    display: none !important;
+}
 
 .content-section.active {
     display: block;

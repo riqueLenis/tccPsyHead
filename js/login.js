@@ -4,67 +4,43 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const usernameInput = document.getElementById('username');
     const passwordInput = document.getElementById('password');
-    const userTypeInput = document.getElementById('userType');
-
-    const usernameError = document.getElementById('usernameError');
-    const passwordError = document.getElementById('passwordError');
     const credentialsError = document.getElementById('credentialsError');
 
-    const showError = (element, message) => {
-        element.textContent = message;
-        element.classList.remove('hidden');
-        if (element.id.includes('username')) usernameInput.classList.add('border-danger-red');
-        if (element.id.includes('password')) passwordInput.classList.add('border-danger-red');
-    };
-
-    const hideError = (element) => {
-        element.classList.add('hidden');
-        if (element.id.includes('username')) usernameInput.classList.remove('border-danger-red');
-        if (element.id.includes('password')) passwordInput.classList.remove('border-danger-red');
-    };
-
-    usernameInput.addEventListener('input', () => hideError(usernameError));
-    passwordInput.addEventListener('input', () => hideError(passwordError));
-
-    loginForm.addEventListener('submit', (event) => {
+    loginForm.addEventListener('submit', async (event) => {
         event.preventDefault();
-        
-        hideError(usernameError);
-        hideError(passwordError);
-        hideError(credentialsError);
-        
-        let isValid = true;
-        if (usernameInput.value.trim() === '') {
-            showError(usernameError, 'Por favor, insira seu e-mail.');
-            isValid = false;
-        }
-        if (passwordInput.value.trim() === '') {
-            showError(passwordError, 'Por favor, insira sua senha.');
-            isValid = false;
-        }
-
-        if (!isValid) return;
+        credentialsError.classList.add('hidden');
 
         const email = usernameInput.value.trim();
-        const password = passwordInput.value.trim();
-        const userType = userTypeInput.value;
+        const senha = passwordInput.value.trim();
 
-        console.log(`Tentativa de login como ${userType} com:`, { email });
-
-        let isAuthenticated = false;
-        if (userType === 'terapeuta' && email === 'terapeuta@psyhead.com' && password === '123') {
-            isAuthenticated = true;
-        } else if (userType === 'responsavel' && email === 'paciente@psyhead.com' && password === '123') {
-            isAuthenticated = true;
+        if (!email || !senha) {
+            credentialsError.textContent = 'Por favor, preencha o e-mail и a senha.';
+            credentialsError.classList.remove('hidden');
+            return;
         }
 
-        if (isAuthenticated) {
-            console.log('Login bem-sucedido!');
-            localStorage.setItem('userType', userType);
+        try {
+            const response = await fetch('http://localhost:3000/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, senha })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Erro ao tentar fazer login.');
+            }
+
+            localStorage.setItem('psyhead-token', data.token);
+            localStorage.setItem('terapeuta-nome', data.terapeuta.nome);
+
             window.location.href = 'index.html';
-        } else {
-            showError(credentialsError, 'Credenciais inválidas. Verifique seu e-mail, senha e tipo de usuário.');
-            console.error('Falha no login: Credenciais inválidas.');
+
+        } catch (error) {
+            console.error('Falha no login:', error);
+            credentialsError.textContent = error.message;
+            credentialsError.classList.remove('hidden');
         }
     });
 });
