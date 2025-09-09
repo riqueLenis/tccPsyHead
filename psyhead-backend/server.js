@@ -4,6 +4,8 @@ const cors = require('cors');
 const {
     Pool
 } = require('pg');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 //config servidor
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -18,8 +20,112 @@ const pool = new Pool({
     password: process.env.DB_PASSWORD,
     port: process.env.DB_PORT,
 });
+
+//middleware
+const verificarToken = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (token == null) {
+        return res.sendStatus(401);
+    }
+
+    jwt.verify(token, process.env.JWT_SECRET || 'seu_segredo_super_secreto', (err, terapeuta) => {
+        if (err) {
+            return res.sendStatus(403);
+        }
+        req.terapeuta = terapeuta;
+        next();
+    });
+};
+
+//rota pra adicionar um novo terapeuta
+app.post('/api/auth/registrar', async (req, res) => {
+    const {
+        nome,
+        email,
+        senha
+    } = req.body;
+    if (!nome || !email || !senha) {
+        return res.status(400).json({
+            error: 'Nome, email e senha são obrigatórios.'
+        });
+    }
+
+    try {
+        const senhaHash = await bcrypt.hash(senha, 10);
+        const queryText = 'INSERT INTO terapeutas (nome, email, senha_hash) VALUES ($1, $2, $3) RETURNING id, email;';
+        const result = await pool.query(queryText, [nome, email, senhaHash]);
+
+        res.status(201).json({
+            message: 'Terapeuta registrado com sucesso!',
+            terapeuta: result.rows[0]
+        });
+    } catch (error) {
+        console.error('Erro ao registrar terapeuta:', error);
+        res.status(500).json({
+            error: 'Erro interno do servidor.'
+        });
+    }
+});
+
+//rota de login
+app.post('/api/auth/login', async (req, res) => {
+    const {
+        email,
+        senha
+    } = req.body;
+    if (!email || !senha) {
+        return res.status(400).json({
+            error: 'Email e senha são obrigatórios.'
+        });
+    }
+
+    try {
+        const queryText = 'SELECT * FROM terapeutas WHERE email = $1;';
+        const result = await pool.query(queryText, [email]);
+
+        if (result.rows.length === 0) {
+            return res.status(401).json({
+                error: 'Credenciais inválidas.'
+            });
+        }
+
+        const terapeuta = result.rows[0];
+
+        const senhaValida = await bcrypt.compare(senha, terapeuta.senha_hash);
+        if (!senhaValida) {
+            return res.status(401).json({
+                error: 'Credenciais inválidas.'
+            });
+        }
+        const token = jwt.sign({
+                id: terapeuta.id,
+                email: terapeuta.email
+            },
+            process.env.JWT_SECRET || 'seu_segredo_super_secreto', {
+                expiresIn: '8h'
+            }
+        );
+
+        res.status(200).json({
+            message: 'Login bem-sucedido!',
+            token: token,
+            terapeuta: {
+                nome: terapeuta.nome
+            }
+        });
+
+    } catch (error) {
+        console.error('Erro no login:', error);
+        res.status(500).json({
+            error: 'Erro interno do servidor.'
+        });
+    }
+});
+
 //rota pra buscar o paciente no bd
-app.post('/api/pacientes', async (req, res) => {
+app.post('/api/pacientes', verificarToken, async (req, res) => {
     console.log('recebida requisição para cadastrar paciente', req.body);
     const {
         nome_completo,
@@ -76,7 +182,7 @@ app.post('/api/pacientes', async (req, res) => {
 });
 
 //rota pra buscar os pacientes salvos no BD
-app.get('/api/pacientes', async (req, res) => {
+app.get('/api/pacientes', verificarToken, async (req, res) => {
     console.log('recebida requisição para buscar todos os pacientes!!');
 
     try {
@@ -96,7 +202,7 @@ app.get('/api/pacientes', async (req, res) => {
 });
 
 //buscando paciente especifico
-app.get('/api/pacientes/:id', async (req, res) => {
+app.get('/api/pacientes/:id', verificarToken, async (req, res) => {
     const {
         id
     } = req.params;
@@ -121,7 +227,7 @@ app.get('/api/pacientes/:id', async (req, res) => {
 });
 
 //rota pra atualizar um paciente
-app.put('/api/pacientes/:id', async (req, res) => {
+app.put('/api/pacientes/:id', verificarToken, async (req, res) => {
     const {
         id
     } = req.params;
@@ -182,7 +288,7 @@ app.put('/api/pacientes/:id', async (req, res) => {
     }
 });
 
-app.delete('/api/pacientes/:id', async (req, res) => {
+app.delete('/api/pacientes/:id', verificarToken, async (req, res) => {
     const {
         id
     } = req.params;
@@ -209,7 +315,7 @@ app.delete('/api/pacientes/:id', async (req, res) => {
 });
 
 //rota para marcar uma sessao
-app.post('/api/sessoes', async (req, res) => {
+app.post('/api/sessoes', verificarToken, async (req, res) => {
     console.log('Recebida requisição para criar nova sessão:', req.body);
 
     const {
@@ -256,7 +362,7 @@ app.post('/api/sessoes', async (req, res) => {
 });
 
 //rota pra buscar todas as sessões de um paciente especific
-app.get('/api/pacientes/:pacienteId/sessoes', async (req, res) => {
+app.get('/api/pacientes/:pacienteId/sessoes', verificarToken, async (req, res) => {
     const {
         pacienteId
     } = req.params;
@@ -277,7 +383,7 @@ app.get('/api/pacientes/:pacienteId/sessoes', async (req, res) => {
 });
 
 //rota pra alimentar o fullcalender biblioteca do js
-app.get('/api/sessoes', async (req, res) => {
+app.get('/api/sessoes', verificarToken, async (req, res) => {
     console.log('Buscando todas as sessões para o calendário');
     try {
         const queryText = `
@@ -301,7 +407,7 @@ app.get('/api/sessoes', async (req, res) => {
 });
 
 //rota pro resumo financeiro do mes atual
-app.get('/api/financeiro/resumo', async (req, res) => {
+app.get('/api/financeiro/resumo', verificarToken, async (req, res) => {
     console.log('Buscando resumo financeiro do mês atual');
     try {
         const queryText = `
@@ -332,7 +438,7 @@ app.get('/api/financeiro/resumo', async (req, res) => {
 });
 
 //rota para as transacoes recentes
-app.get('/api/financeiro/transacoes', async (req, res) => {
+app.get('/api/financeiro/transacoes', verificarToken, async (req, res) => {
     console.log('Buscando transações financeiras recentes');
     try {
         const queryText = `

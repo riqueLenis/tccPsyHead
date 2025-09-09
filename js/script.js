@@ -19,11 +19,39 @@ document.addEventListener('DOMContentLoaded', () => {
     const cancelSessionFormBtn = document.getElementById('cancel-session-form-btn');
     const sessionForm = document.getElementById('sessionForm');
     const sessionFormPatientName = document.getElementById('session-form-patient-name');
+    const token = localStorage.getItem('psyhead-token');
+    const nomeTerapeuta = localStorage.getItem('terapeuta-nome');
+
+    if (!token) {
+        window.location.href = 'login.html';
+        return;
+    }
+    const getAuthHeaders = () => {
+        return {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        };
+    };
+    const userAvatarSpan = document.querySelector('.user-avatar span');
+    if (userAvatarSpan && nomeTerapeuta) {
+        userAvatarSpan.textContent = `Olá, ${nomeTerapeuta}`;
+    }
+    const logoutLink = document.getElementById('logout-link');
+    if (logoutLink) {
+        logoutLink.addEventListener('click', (event) => {
+            event.preventDefault();
+            localStorage.removeItem('psyhead-token');
+            localStorage.removeItem('terapeuta-nome');
+            window.location.href = 'login.html';
+        });
+    }
 
     //sessão das sessões dos pacientes
     const popularDropdownPacientes = async () => {
         try {
-            const response = await fetch('http://localhost:3000/api/pacientes');
+            const response = await fetch('http://localhost:3000/api/pacientes', {
+                headers: getAuthHeaders()
+            });
             if (!response.ok) throw new Error('Falha ao buscar pacientes.');
             const pacientes = await response.json();
 
@@ -43,7 +71,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const carregarSessoes = async (pacienteId) => {
         sessionListContainer.innerHTML = '<p class="info-message">Carregando sessões...</p>';
         try {
-            const response = await fetch(`http://localhost:3000/api/pacientes/${pacienteId}/sessoes`);
+            const response = await fetch(`http://localhost:3000/api/pacientes/${pacienteId}/sessoes`, {
+                headers: getAuthHeaders()
+            });
             if (!response.ok) throw new Error('Falha ao buscar sessões.');
             const sessoes = await response.json();
 
@@ -173,7 +203,9 @@ document.addEventListener('DOMContentLoaded', () => {
     //funcoes do paciete
     const mostrarDetalhesPaciente = async (pacienteId) => {
         try {
-            const response = await fetch(`http://localhost:3000/api/pacientes/${pacienteId}`);
+            const response = await fetch(`http://localhost:3000/api/pacientes/${pacienteId}`, {
+                headers: getAuthHeaders()
+            });
             if (!response.ok) throw new Error('Paciente não encontrado');
             const paciente = await response.json();
 
@@ -227,7 +259,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             const response = await fetch(`http://localhost:3000/api/pacientes/${pacienteId}`, {
-                method: 'DELETE'
+                method: 'DELETE',
+                headers: getAuthHeaders()
             });
             if (!response.ok) {
                 const errorData = await response.json();
@@ -247,7 +280,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const patientGrid = document.querySelector('.patient-grid');
         patientGrid.innerHTML = '<p>Carregando pacientes...</p>';
         try {
-            const response = await fetch('http://localhost:3000/api/pacientes');
+            const response = await fetch('http://localhost:3000/api/pacientes', {
+                headers: getAuthHeaders()
+            });
             if (!response.ok) throw new Error('Falha na rede ao buscar pacientes');
             const pacientes = await response.json();
 
@@ -275,7 +310,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                         <div class="patient-card-actions">
                             <a href="#" class="btn btn-secondary btn-sm btn-view-prontuario" data-id="${paciente.id}">Ver Prontuário</a>
-                            <a href="#" class="btn btn-primary btn-sm" data-id="${paciente.id}">Agendar</a>
                         </div>
                     </div>
                 `;
@@ -291,7 +325,9 @@ document.addEventListener('DOMContentLoaded', () => {
     //forms criar e editar
     const abrirFormularioEdicao = async (pacienteId) => {
         try {
-            const response = await fetch(`http://localhost:3000/api/pacientes/${pacienteId}`);
+            const response = await fetch(`http://localhost:3000/api/pacientes/${pacienteId}`, {
+                headers: getAuthHeaders()
+            });
             if (!response.ok) throw new Error('Não foi possível carregar os dados do paciente');
             const paciente = await response.json();
 
@@ -362,9 +398,7 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const response = await fetch(url, {
                     method,
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: getAuthHeaders(),
                     body: JSON.stringify(pacienteData),
                 });
                 if (!response.ok) {
@@ -398,7 +432,9 @@ document.addEventListener('DOMContentLoaded', () => {
     //funcao pra carregar o resumo financeiroq
     const carregarResumoFinanceiro = async () => {
         try {
-            const response = await fetch('http://localhost:3000/api/financeiro/resumo');
+            const response = await fetch('http://localhost:3000/api/financeiro/resumo', {
+                headers: getAuthHeaders()
+            });
             if (!response.ok) throw new Error('Falha ao buscar resumo financeiro.');
             const resumo = await response.json();
             const formatarMoeda = (valor) => {
@@ -422,7 +458,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const tbody = document.getElementById('transactions-table-body');
         tbody.innerHTML = '<tr><td colspan="4">Carregando...</td></tr>';
         try {
-            const response = await fetch('http://localhost:3000/api/financeiro/transacoes');
+            const response = await fetch('http://localhost:3000/api/financeiro/transacoes', {
+                headers: getAuthHeaders()
+            });
             if (!response.ok) throw new Error('Falha ao buscar transações.');
             const transacoes = await response.json();
 
@@ -499,9 +537,7 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const response = await fetch('http://localhost:3000/api/sessoes', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: getAuthHeaders(),
                     body: JSON.stringify(sessionData)
                 });
                 if (!response.ok) throw new Error('Falha ao salvar sessão.');
