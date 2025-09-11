@@ -180,6 +180,29 @@ app.post('/api/pacientes', verificarToken, async (req, res) => {
         });
     }
 });
+//rota pra estatisticas do dashboard index
+app.get('/api/dashboard/stats', verificarToken, async (req, res) => {
+    console.log('Buscando estatísticas para o dashboard principal');
+    try {
+        const queryText = `
+      SELECT
+        (SELECT COUNT(*) FROM pacientes) AS pacientes_ativos,
+        
+        (SELECT COUNT(*) FROM sessoes WHERE data_sessao::date = CURRENT_DATE) AS sessoes_hoje,
+        
+        (SELECT COALESCE(SUM(valor_sessao), 0) FROM sessoes WHERE status_pagamento = 'Pago' AND data_sessao >= DATE_TRUNC('month', CURRENT_DATE)) AS faturamento_mes;
+    `;
+
+        const result = await pool.query(queryText);
+        res.status(200).json(result.rows[0]);
+
+    } catch (error) {
+        console.error('Erro ao buscar estatísticas do dashboard:', error);
+        res.status(500).json({
+            error: 'Erro interno do servidor.'
+        });
+    }
+});
 
 //rota pra buscar os pacientes salvos no BD
 app.get('/api/pacientes', verificarToken, async (req, res) => {
@@ -357,6 +380,114 @@ app.post('/api/sessoes', verificarToken, async (req, res) => {
         console.error('Erro ao registrar sessão:', error);
         res.status(500).json({
             error: 'Erro interno do servidor ao registrar a sessão.'
+        });
+    }
+});
+
+//rota pra buscar os detalhes de uma unica sessao
+app.get('/api/sessoes/:id', verificarToken, async (req, res) => {
+    const {
+        id
+    } = req.params;
+    console.log(`Buscando detalhes da sessão com ID: ${id}`);
+
+    try {
+        const queryText = `
+      SELECT 
+        s.*,
+        p.nome_completo AS paciente_nome
+      FROM sessoes s
+      JOIN pacientes p ON s.paciente_id = p.id
+      WHERE s.id = $1;
+    `;
+        const result = await pool.query(queryText, [id]);
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                error: 'Sessão não encontrada.'
+            });
+        }
+        res.status(200).json(result.rows[0]);
+
+    } catch (error) {
+        console.error('Erro ao buscar detalhes da sessão:', error);
+        res.status(500).json({
+            error: 'Erro interno do servidor.'
+        });
+    }
+});
+
+//rota pra atualizar uma sessão
+app.put('/api/sessoes/:id', verificarToken, async (req, res) => {
+    const {
+        id
+    } = req.params;
+    const {
+        data_sessao,
+        duracao_minutos,
+        tipo_sessao,
+        resumo_sessao,
+        valor_sessao,
+        status_pagamento
+    } = req.body;
+
+    if (!data_sessao) {
+        return res.status(400).json({
+            error: 'A data da sessão é obrigatória.'
+        });
+    }
+
+    try {
+        const queryText = `
+      UPDATE sessoes SET
+        data_sessao = $1, duracao_minutos = $2, tipo_sessao = $3, 
+        resumo_sessao = $4, valor_sessao = $5, status_pagamento = $6
+      WHERE id = $7
+      RETURNING *;
+    `;
+        const values = [
+            data_sessao, duracao_minutos, tipo_sessao, resumo_sessao,
+            valor_sessao, status_pagamento, id
+        ];
+        const result = await pool.query(queryText, values);
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                error: 'Sessão não encontrada para atualização.'
+            });
+        }
+        res.status(200).json({
+            message: 'Sessão atualizada com sucesso!',
+            sessao: result.rows[0]
+        });
+    } catch (error) {
+        console.error('Erro ao atualizar sessão:', error);
+        res.status(500).json({
+            error: 'Erro interno do servidor.'
+        });
+    }
+});
+
+//rota pra excluir uma sessão
+app.delete('/api/sessoes/:id', verificarToken, async (req, res) => {
+    const {
+        id
+    } = req.params;
+    try {
+        const queryText = 'DELETE FROM sessoes WHERE id = $1 RETURNING id;';
+        const result = await pool.query(queryText, [id]);
+        if (result.rowCount === 0) {
+            return res.status(404).json({
+                error: 'Sessão não encontrada para exclusão.'
+            });
+        }
+        res.status(200).json({
+            message: 'Sessão excluída com sucesso.'
+        });
+    } catch (error) {
+        console.error('Erro ao excluir sessão:', error);
+        res.status(500).json({
+            error: 'Erro interno do servidor.'
         });
     }
 });

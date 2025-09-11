@@ -74,7 +74,7 @@
                 <section id="dashboard-section" class="content-section active">
                     <div class="dashboard-header">
                         <h2 class="section-title">Bem-vindo(a) de volta, Henrique!</h2>
-                        <p class="section-subtitle">Aqui está um resumo rápido da sua clínica hoje, 14 de agosto de
+                        <p class="section-subtitle">Aqui está um resumo rápido da sua clínica hoje, 11 de Setembro de
                             2025.</p>
                     </div>
 
@@ -85,7 +85,7 @@
                             </div>
                             <div class="stat-card-info">
                                 <span class="stat-card-title">Pacientes Ativos</span>
-                                <span class="stat-card-value">12</span>
+                                <span id="stat-pacientes-ativos" class="stat-card-value">...</span>
                             </div>
                         </div>
                         <div class="stat-card">
@@ -94,7 +94,7 @@
                             </div>
                             <div class="stat-card-info">
                                 <span class="stat-card-title">Sessões Hoje</span>
-                                <span class="stat-card-value">4</span>
+                                <span id="stat-sessoes-hoje" class="stat-card-value">...</span>
                             </div>
                         </div>
                         <div class="stat-card">
@@ -103,7 +103,7 @@
                             </div>
                             <div class="stat-card-info">
                                 <span class="stat-card-title">Faturamento (Mês)</span>
-                                <span class="stat-card-value">R$ 4.350,00</span>
+                                <span id="stat-faturamento-mes" class="stat-card-value">...</span>
                             </div>
                         </div>
                         <div class="stat-card">
@@ -112,8 +112,7 @@
                             </div>
                             <div class="stat-card-info">
                                 <span class="stat-card-title">Avaliações Pendentes</span>
-                                <span class="stat-card-value">2</span>
-                            </div>
+                                <span class="stat-card-value">2</span> </div>
                         </div>
                     </div>
 
@@ -337,6 +336,7 @@
                         <h3 class="form-section-title">Registrar Nova Sessão para <span id="session-form-patient-name"
                                 class="text-primary-light"></span></h3>
                         <form id="sessionForm">
+                            <input type="hidden" id="sessionId" name="sessionId">
                             <div class="form-grid">
                                 <div class="form-group">
                                     <label for="data_sessao" class="form-label">Data e Hora da Sessão</label>
@@ -456,6 +456,18 @@
                 </section>
 
             </main>
+        </div>
+    </div>
+
+    <!--detalhes da sessão-->
+    <div id="session-detail-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Detalhes da Sessão</h3>
+                <button id="close-modal-btn" class="modal-close-btn">&times;</button>
+            </div>
+            <div id="modal-body-content" class="modal-body"></div>
+            <div id="modal-footer-content" class="modal-footer"></div>
         </div>
     </div>
 
