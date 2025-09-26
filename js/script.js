@@ -844,7 +844,7 @@ document.addEventListener('DOMContentLoaded', () => {
             transactionsBody.innerHTML = '<tr><td colspan="4" class="error-message">Erro ao gerar transações.</td></tr>';
         }
     };
-   //listeners
+    //listeners
     if (!token && window.location.pathname.includes('index.html')) {
         window.location.href = 'login.html';
         return;
@@ -859,6 +859,20 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.removeItem('psyhead-token');
             localStorage.removeItem('terapeuta-nome');
             window.location.href = 'login.html';
+        });
+    }
+    const hamburgerBtn = document.getElementById('hamburger-btn');
+    const sidebar = document.querySelector('.sidebar');
+
+    if (hamburgerBtn && sidebar) {
+        hamburgerBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+        });
+
+        sidebar.addEventListener('click', (event) => {
+            if (event.target.tagName === 'A') {
+                sidebar.classList.remove('open');
+            }
         });
     }
 

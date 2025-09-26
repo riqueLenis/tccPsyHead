@@ -897,3 +897,87 @@ textarea.form-input {
     flex-grow: 1;
     max-width: 250px;
 }
+
+@media (max-width: 768px) {
+
+    .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease-in-out;
+        z-index: 4000;
+    }
+
+    .sidebar.open {
+        transform: translateX(0);
+    }
+
+    .main-content {
+        margin-left: 0;
+        padding: 1rem;
+        padding-top: 80px;
+    }
+    
+    .hamburger-btn {
+        display: block;
+        background: none;
+        border: none;
+        color: var(--primary-dark);
+        font-size: 1.5rem;
+        cursor: pointer;
+        z-index: 5000;
+    }
+
+    .main-header {
+        padding: 0.5rem 1rem;
+    }
+    .user-avatar span {
+        display: none;
+    }
+
+    .stats-grid,
+    .feature-grid,
+    .patient-grid,
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+    .form-group.col-span-2 {
+        grid-column: auto;
+    }
+
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .section-title {
+        font-size: 1.8rem;
+    }
+
+    .transactions-container {
+        overflow-x: auto;
+    }
+    .transactions-table {
+        min-width: 600px;
+    }
+    
+    .modal-content {
+        width: 95%;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    .session-card {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        text-align: center;
+    }
+    .session-card-actions {
+        justify-content: center;
+    }
+
+    .login-container {
+        width: 90%;
+        padding: 1.5rem;
+    }
+
+}
