@@ -1,17 +1,12 @@
-// js/script.js (VERSÃO FINAL, LIMPA E ORGANIZADA)
 document.addEventListener('DOMContentLoaded', () => {
-    'use strict'; // Ativa um modo mais rigoroso do JS, uma boa prática!
-
-    // =================================================================
-    // --- 1. SELETORES DE ELEMENTOS ---
-    // =================================================================
+    'use strict';
     const sidebarLinks = document.querySelectorAll('.sidebar nav a');
     const contentSections = document.querySelectorAll('.content-section');
     const featureCards = document.querySelectorAll('.feature-card');
     const logoutLink = document.getElementById('logout-link');
     const userAvatarSpan = document.querySelector('.user-avatar span');
-
-    // Módulo Pacientes
+    const mainModal = document.getElementById('main-modal');
+    //modulo pacientes
     const pacienteForm = document.getElementById('pacienteForm');
     const pacienteIdInput = document.getElementById('pacienteId');
     const pacientesViewList = document.getElementById('pacientes-view-list');
@@ -21,8 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const backToListBtn = document.getElementById('back-to-list-btn');
     const detailBackToListBtn = document.getElementById('detail-back-to-list-btn');
     const detailHeader = document.querySelector('#pacientes-view-detail .page-header');
-
-    // Módulo Sessões e Agenda
+    //modulo sessoes e agenda
     const patientSelector = document.getElementById('patient-selector');
     const sessionListContainer = document.getElementById('session-list-container');
     const sessionFormContainer = document.getElementById('session-form-container');
@@ -31,25 +25,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const sessionForm = document.getElementById('sessionForm');
     const sessionIdInput = document.getElementById('sessionId');
     const sessionFormPatientName = document.getElementById('session-form-patient-name');
-    
-    // Módulo Modal
+    //modulo modal
     const sessionDetailModal = document.getElementById('session-detail-modal');
     const closeModalBtn = document.getElementById('close-modal-btn');
     const modalBodyContent = document.getElementById('modal-body-content');
     const modalFooterContent = document.getElementById('modal-footer-content');
-
-    // =================================================================
-    // --- 2. ESTADO DA APLICAÇÃO E VARIÁVEIS GLOBAIS ---
-    // =================================================================
     const token = localStorage.getItem('psyhead-token');
     const nomeTerapeuta = localStorage.getItem('terapeuta-nome');
-    let calendar; // Variável para a instância do FullCalendar
-
-    // =================================================================
-    // --- 3. FUNÇÕES PRINCIPAIS (Agrupadas por Módulo) ---
-    // =================================================================
-
-    // --- Funções de Autenticação e Navegação ---
+    let calendar;
     const getAuthHeaders = () => ({
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
@@ -62,18 +45,25 @@ document.addEventListener('DOMContentLoaded', () => {
         hideAllSections();
         const targetSection = document.getElementById(sectionId);
         if (targetSection) targetSection.classList.remove('hidden');
-        
+
         removeActiveClass();
         const targetNavLink = document.getElementById(navLinkId);
         if (targetNavLink) targetNavLink.classList.add('active-nav-link');
+        if (sectionId === 'avaliacoes-section') {
+            carregarAvaliacoesRecebidas();
+            carregarAvaliacoesPendentes();
+        }
+        if (sectionId === 'relatorios-section') {
+            const resultadoContainer = document.getElementById('relatorio-resultado-container');
+            if (resultadoContainer) resultadoContainer.classList.add('hidden');
+        }
 
-        // Lógica de carregamento específica da seção
         if (sectionId === 'pacientes-section') goBackToList();
         if (sectionId === 'sessoes-section') {
             popularDropdownPacientes();
             sessionListContainer.innerHTML = '<p class="info-message">Por favor, selecione um paciente para ver suas sessões.</p>';
             sessionFormContainer.classList.add('hidden');
-            if(showSessionFormBtn) showSessionFormBtn.disabled = true;
+            if (showSessionFormBtn) showSessionFormBtn.disabled = true;
         }
         if (sectionId === 'agenda-section') inicializarCalendario();
         if (sectionId === 'financeiro-section') {
@@ -89,7 +79,157 @@ document.addEventListener('DOMContentLoaded', () => {
         carregarPacientes();
     };
 
-    // --- Funções do Módulo Dashboard e Finanças ---
+    const carregarMedicacoes = async (pacienteId) => {
+        const medicationListDiv = document.getElementById('medication-list');
+        if (!medicationListDiv) return;
+        medicationListDiv.innerHTML = '<p>Carregando...</p>';
+        try {
+            const response = await fetch(`http://localhost:3000/api/pacientes/${pacienteId}/medicacoes`, {
+                headers: getAuthHeaders()
+            });
+            if (!response.ok) throw new Error('Falha ao buscar medicações.');
+            const medicacoes = await response.json();
+
+            medicationListDiv.innerHTML = '';
+            if (medicacoes.length === 0) {
+                medicationListDiv.innerHTML = '<p>Nenhuma medicação registrada.</p>';
+                return;
+            }
+
+            medicacoes.forEach(med => {
+                const itemHTML = `
+                    <div class="medication-item" data-medicacao-id="${med.id}">
+                        <div class="medication-info">
+                            <strong>${med.nome_medicamento}</strong>
+                            <span>(${med.dosagem || 'N/D'}, ${med.frequencia || 'N/D'})</span>
+                        </div>
+                        <div class="medication-actions">
+                            <button class="btn btn-secondary btn-sm edit-med-btn">Editar</button>
+                            <button class="btn btn-danger btn-sm delete-med-btn">Excluir</button>
+                        </div>
+                    </div>
+                `;
+                medicationListDiv.innerHTML += itemHTML;
+            });
+        } catch (error) {
+            console.error(error);
+            medicationListDiv.innerHTML = '<p class="error-message">Erro ao carregar medicações.</p>';
+        }
+    };
+
+    const abrirFormularioMedicacao = async (pacienteId, medicacaoId = null) => {
+        const modalTitle = mainModal.querySelector('.modal-title');
+        const modalBody = mainModal.querySelector('.modal-body');
+        const modalFooter = mainModal.querySelector('.modal-footer');
+
+        modalTitle.textContent = medicacaoId ? 'Editar Medicação' : 'Adicionar Nova Medicação';
+        modalBody.innerHTML = `
+            <form id="medicationForm" class="space-y-6">
+                <input type="hidden" id="medPacienteId" value="${pacienteId}">
+                <input type="hidden" id="medId" value="${medicacaoId || ''}">
+                <div class="form-grid">
+                    <div class="form-group col-span-2">
+                        <label for="nome_medicamento" class="form-label">Nome do Medicamento</label>
+                        <input type="text" id="nome_medicamento" name="nome_medicamento" required class="form-input">
+                    </div>
+                    <div class="form-group"><label for="dosagem" class="form-label">Dosagem</label><input type="text" id="dosagem" name="dosagem" class="form-input" placeholder="Ex: 50mg"></div>
+                    <div class="form-group"><label for="frequencia" class="form-label">Frequência</label><input type="text" id="frequencia" name="frequencia" class="form-input" placeholder="Ex: 2 vezes ao dia"></div>
+                    <div class="form-group"><label for="data_inicio" class="form-label">Data de Início</label><input type="date" id="data_inicio" name="data_inicio" required class="form-input"></div>
+                    <div class="form-group"><label for="data_termino" class="form-label">Data de Término (Opcional)</label><input type="date" id="data_termino" name="data_termino" class="form-input"></div>
+                    <div class="form-group col-span-2"><label for="medico_prescritor" class="form-label">Médico Prescritor</label><input type="text" id="medico_prescritor" name="medico_prescritor" class="form-input"></div>
+                    <div class="form-group col-span-2"><label for="observacoes" class="form-label">Observações</label><textarea id="observacoes" name="observacoes" rows="3" class="form-input"></textarea></div>
+                </div>
+            </form>
+        `;
+        modalBody.innerHTML = `
+            <form id="medicationForm" class="space-y-6">
+                </form>
+        `;
+
+        modalFooter.innerHTML = `
+            <button id="cancel-med-btn" class="btn btn-secondary">Cancelar</button>
+            <button id="save-med-btn" class="btn btn-primary">Salvar Medicação</button>
+        `;
+        if (medicacaoId) {
+            try {
+                const response = await fetch(`http://localhost:3000/api/medicacoes/${medicacaoId}`, {
+                    headers: getAuthHeaders()
+                });
+                if (!response.ok) throw new Error('Falha ao carregar dados da medicação.');
+                const med = await response.json();
+
+                const form = document.getElementById('medicationForm');
+                form.elements['nome_medicamento'].value = med.nome_medicamento;
+                form.elements['dosagem'].value = med.dosagem;
+                form.elements['frequencia'].value = med.frequencia;
+                if (med.data_inicio) form.elements['data_inicio'].value = new Date(med.data_inicio).toISOString().split('T')[0];
+                if (med.data_termino) form.elements['data_termino'].value = new Date(med.data_termino).toISOString().split('T')[0];
+                form.elements['medico_prescritor'].value = med.medico_prescritor;
+                form.elements['observacoes'].value = med.observacoes;
+            } catch (error) {
+                console.error(error);
+                alert('Não foi possível carregar os dados para edição.');
+                return;
+            }
+        }
+
+        mainModal.classList.remove('hidden');
+        document.getElementById('cancel-med-btn').onclick = () => mainModal.classList.add('hidden');
+        document.getElementById('save-med-btn').onclick = () => salvarMedicacao();
+    };
+
+    const salvarMedicacao = async () => {
+        const form = document.getElementById('medicationForm');
+        const pacienteId = form.elements['medPacienteId'].value;
+        const medicacaoId = form.elements['medId'].value;
+
+        const medData = {
+            nome_medicamento: form.elements['nome_medicamento'].value,
+            dosagem: form.elements['dosagem'].value,
+            frequencia: form.elements['frequencia'].value,
+            data_inicio: form.elements['data_inicio'].value,
+            data_termino: form.elements['data_termino'].value || null,
+            medico_prescritor: form.elements['medico_prescritor'].value,
+            observacoes: form.elements['observacoes'].value,
+        };
+
+        const method = medicacaoId ? 'PUT' : 'POST';
+        const url = medicacaoId ?
+            `http://localhost:3000/api/medicacoes/${medicacaoId}` :
+            `http://localhost:3000/api/pacientes/${pacienteId}/medicacoes`;
+
+        try {
+            const response = await fetch(url, {
+                method,
+                headers: getAuthHeaders(),
+                body: JSON.stringify(medData)
+            });
+            if (!response.ok) throw new Error('Falha ao salvar medicação.');
+            const result = await response.json();
+            alert(result.message);
+            mainModal.classList.add('hidden');
+            carregarMedicacoes(pacienteId);
+        } catch (error) {
+            alert(error.message);
+        }
+    };
+    const excluirMedicacao = async (medicacaoId, pacienteId) => {
+        if (!confirm('Você tem certeza que deseja excluir esta medicação? Esta ação é permanente.')) {
+            return;
+        }
+        try {
+            const response = await fetch(`http://localhost:3000/api/medicacoes/${medicacaoId}`, {
+                method: 'DELETE',
+                headers: getAuthHeaders()
+            });
+            if (!response.ok) throw new Error('Falha ao excluir a medicação.');
+            const result = await response.json();
+            alert(result.message);
+            carregarMedicacoes(pacienteId);
+        } catch (error) {
+            alert(error.message);
+        }
+    };
     const carregarDashboardStats = async () => {
         try {
             const response = await fetch('http://localhost:3000/api/dashboard/stats', {
@@ -98,8 +238,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!response.ok) throw new Error('Falha ao buscar estatísticas do dashboard.');
 
             const stats = await response.json();
+
             const formatarMoeda = (valor) => {
-                return parseFloat(valor).toLocaleString('pt-BR', {
+                return parseFloat(valor || 0).toLocaleString('pt-BR', {
                     style: 'currency',
                     currency: 'BRL'
                 });
@@ -108,12 +249,14 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('stat-pacientes-ativos').textContent = stats.pacientes_ativos;
             document.getElementById('stat-sessoes-hoje').textContent = stats.sessoes_hoje;
             document.getElementById('stat-faturamento-mes').textContent = formatarMoeda(stats.faturamento_mes);
+            document.getElementById('stat-avaliacoes-pendentes').textContent = stats.avaliacoes_pendentes;
 
         } catch (error) {
             console.error('Erro ao carregar estatísticas do dashboard:', error);
             document.getElementById('stat-pacientes-ativos').textContent = '-';
             document.getElementById('stat-sessoes-hoje').textContent = '-';
             document.getElementById('stat-faturamento-mes').textContent = '-';
+            document.getElementById('stat-avaliacoes-pendentes').textContent = '-';
         }
     };
     const carregarResumoFinanceiro = async () => {
@@ -173,10 +316,11 @@ document.addEventListener('DOMContentLoaded', () => {
             tbody.innerHTML = '<tr><td colspan="4" class="error-message">Erro ao carregar transações.</td></tr>';
         }
     };
-    const formatarMoeda = (valor) => parseFloat(valor).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    const formatarMoeda = (valor) => parseFloat(valor).toLocaleString('pt-BR', {
+        style: 'currency',
+        currency: 'BRL'
+    });
 
-
-    // --- Funções do Módulo Pacientes ---
     const calcularIdade = (dataNascimento) => {
         if (!dataNascimento) return 'N/A';
         const hoje = new Date();
@@ -240,37 +384,25 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             if (!response.ok) throw new Error('Paciente não encontrado');
             const paciente = await response.json();
-
             document.getElementById('detail-patient-name').textContent = paciente.nome_completo;
-            const detailCard = document.querySelector('.patient-detail-card');
-            detailCard.innerHTML = `
-                <div class="detail-section">
-                    <h4 class="detail-section-title">Dados Pessoais</h4>
-                    <div class="detail-grid">
-                        <div class="detail-item"><strong>Data de Nasc.</strong><span>${new Date(paciente.data_nascimento).toLocaleDateString('pt-BR')}</span></div>
-                        <div class="detail-item"><strong>Idade</strong><span>${calcularIdade(paciente.data_nascimento)} anos</span></div>
-                        <div class="detail-item"><strong>Sexo</strong><span>${paciente.sexo}</span></div>
-                        <div class="detail-item"><strong>CPF</strong><span>${paciente.cpf || 'Não informado'}</span></div>
-                        <div class="detail-item"><strong>RG</strong><span>${paciente.rg || 'Não informado'}</span></div>
-                        <div class="detail-item"><strong>Nacionalidade</strong><span>${paciente.nacionalidade}</span></div>
-                    </div>
-                </div>
-                <div class="detail-section">
-                    <h4 class="detail-section-title">Contato</h4>
-                    <div class="detail-grid">
-                        <div class="detail-item"><strong>Celular</strong><span>${paciente.celular}</span></div>
-                        <div class="detail-item"><strong>Telefone</strong><span>${paciente.telefone || 'Não informado'}</span></div>
-                        <div class="detail-item"><strong>E-mail</strong><span>${paciente.email || 'Não informado'}</span></div>
-                    </div>
-                </div>
-                <div class="detail-section">
-                    <h4 class="detail-section-title">Dados Clínicos</h4>
-                    <div class="detail-grid">
-                        <div class="detail-item full-width"><strong>Motivo da Consulta</strong><span>${paciente.motivacao_consulta}</span></div>
-                        <div class="detail-item full-width"><strong>Histórico Médico Relevante</strong><span>${paciente.historico_medico || 'Nenhum'}</span></div>
-                    </div>
-                </div>
-            `;
+            document.getElementById('detail-grid-pessoais').innerHTML = `
+            <div class="detail-item"><strong>Data de Nasc.</strong><span>${new Date(paciente.data_nascimento).toLocaleDateString('pt-BR')}</span></div>
+            <div class="detail-item"><strong>Idade</strong><span>${calcularIdade(paciente.data_nascimento)} anos</span></div>
+            <div class="detail-item"><strong>Sexo</strong><span>${paciente.sexo}</span></div>
+            <div class="detail-item"><strong>CPF</strong><span>${paciente.cpf || 'Não informado'}</span></div>
+            <div class="detail-item"><strong>RG</strong><span>${paciente.rg || 'Não informado'}</span></div>
+            <div class="detail-item"><strong>Nacionalidade</strong><span>${paciente.nacionalidade}</span></div>
+        `;
+            document.getElementById('detail-grid-contato').innerHTML = `
+            <div class="detail-item"><strong>Celular</strong><span>${paciente.celular}</span></div>
+            <div class="detail-item"><strong>Telefone</strong><span>${paciente.telefone || 'Não informado'}</span></div>
+            <div class="detail-item"><strong>E-mail</strong><span>${paciente.email || 'Não informado'}</span></div>
+        `;
+            document.getElementById('detail-grid-clinicos').innerHTML = `
+            <div class="detail-item full-width"><strong>Motivo da Consulta</strong><span>${paciente.motivacao_consulta}</span></div>
+            <div class="detail-item full-width"><strong>Histórico Médico Relevante</strong><span>${paciente.historico_medico || 'Nenhum'}</span></div>
+        `;
+            carregarMedicacoes(pacienteId);
 
             pacientesViewList.classList.add('hidden');
             pacientesViewForm.classList.add('hidden');
@@ -345,7 +477,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // --- Funções do Módulo Sessões e Agenda ---
     const popularDropdownPacientes = async () => {
         try {
             const response = await fetch('http://localhost:3000/api/pacientes', {
@@ -449,7 +580,6 @@ document.addEventListener('DOMContentLoaded', () => {
             },
 
             eventClick: function (info) {
-                //alert('Evento: ' + info.event.title);
                 info.jsEvent.preventDefault();
                 const sessionId = info.event.id;
                 abrirModalDetalhesSessao(sessionId);
@@ -458,50 +588,80 @@ document.addEventListener('DOMContentLoaded', () => {
 
         calendar.render();
     };
+
     const abrirModalDetalhesSessao = async (sessionId) => {
-        modalBodyContent.innerHTML = '<p>Carregando...</p>';
-        sessionDetailModal.classList.remove('hidden');
+        const modalBody = mainModal.querySelector('.modal-body');
+        const modalFooter = mainModal.querySelector('.modal-footer');
+
+        modalBody.innerHTML = '<p>Carregando...</p>';
+        modalFooter.innerHTML = '';
+        mainModal.classList.remove('hidden');
 
         try {
-            const response = await fetch(`http://localhost:3000/api/sessoes/${sessionId}`, {
+            const sessaoResponse = await fetch(`http://localhost:3000/api/sessoes/${sessionId}`, {
                 headers: getAuthHeaders()
             });
-            if (!response.ok) throw new Error('Não foi possível carregar os detalhes da sessão.');
+            if (!sessaoResponse.ok) throw new Error('Não foi possível carregar os detalhes da sessão.');
+            const sessao = await sessaoResponse.json();
 
-            const sessao = await response.json();
             const dataFormatada = new Date(sessao.data_sessao).toLocaleString('pt-BR', {
                 dateStyle: 'full',
                 timeStyle: 'short'
             });
             const statusClass = sessao.status_pagamento === 'Pago' ? 'status-pago' : 'status-pendente';
 
-            modalBodyContent.innerHTML = `
+            let sessaoHTML = `
             <div class="detail-section">
                 <div class="detail-grid">
                     <div class="detail-item"><strong>Paciente</strong><span>${sessao.paciente_nome}</span></div>
                     <div class="detail-item"><strong>Data</strong><span>${dataFormatada}</span></div>
-                    <div class="detail-item"><strong>Duração</strong><span>${sessao.duracao_minutos} minutos</span></div>
-                    <div class="detail-item"><strong>Valor</strong><span>${parseFloat(sessao.valor_sessao || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span></div>
                     <div class="detail-item"><strong>Pagamento</strong><span><span class="status-badge ${statusClass}">${sessao.status_pagamento}</span></span></div>
                 </div>
             </div>
             <div class="detail-section">
                 <h4 class="detail-section-title">Anotações da Sessão</h4>
-                <div class="detail-item full-width">
-                    <span>${sessao.resumo_sessao || 'Nenhuma anotação registrada.'}</span>
-                </div>
+                <div class="detail-item full-width"><span>${sessao.resumo_sessao || 'Nenhuma anotação registrada.'}</span></div>
             </div>
         `;
-        } catch (error) {
-            modalBodyContent.innerHTML = `<p class="error-message">${error.message}</p>`;
-        }
-        modalFooterContent.innerHTML = `
+            const avaliacaoResponse = await fetch(`http://localhost:3000/api/sessoes/${sessionId}/avaliacao`, {
+                headers: getAuthHeaders()
+            });
+
+            let avaliacaoHTML = '';
+            if (avaliacaoResponse.ok) {
+                const avaliacao = await avaliacaoResponse.json();
+                avaliacaoHTML = `
+                <div class="detail-section">
+                    <h4 class="detail-section-title">Avaliação Recebida</h4>
+                    <div class="detail-grid">
+                        <div class="detail-item"><strong>Nota Geral</strong><span>${'⭐'.repeat(avaliacao.nota_geral)}</span></div>
+                        <div class="detail-item full-width"><strong>Comentários Positivos</strong><span>${avaliacao.comentarios_positivos || 'Não informado.'}</span></div>
+                        <div class="detail-item full-width"><strong>Pontos a Melhorar</strong><span>${avaliacao.pontos_a_melhorar || 'Não informado.'}</span></div>
+                    </div>
+                </div>
+            `;
+            } else {
+                avaliacaoHTML = `
+                <div class="detail-section">
+                    <h4 class="detail-section-title">Avaliação</h4>
+                    <p>Esta sessão ainda não foi avaliada.</p>
+                </div>
+            `;
+            }
+
+            modalBody.innerHTML = sessaoHTML + avaliacaoHTML;
+            modalFooter.innerHTML = `
             <button id="edit-session-btn" class="btn btn-primary btn-sm">Editar</button>
             <button id="delete-session-btn" class="btn btn-danger btn-sm">Excluir</button>
         `;
-        document.getElementById('edit-session-btn').onclick = () => abrirFormularioEdicaoSessao(sessionId);
-        document.getElementById('delete-session-btn').onclick = () => excluirSessao(sessionId);
+            document.getElementById('edit-session-btn').onclick = () => abrirFormularioEdicaoSessao(sessionId);
+            document.getElementById('delete-session-btn').onclick = () => excluirSessao(sessionId);
+
+        } catch (error) {
+            modalBody.innerHTML = `<p class="error-message">${error.message}</p>`;
+        }
     };
+
     const abrirFormularioEdicaoSessao = async (sessaoId) => {
         try {
             const response = await fetch(`http://localhost:3000/api/sessoes/${sessaoId}`, {
@@ -509,22 +669,29 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             if (!response.ok) throw new Error('Não foi possível carregar os dados da sessão.');
             const sessao = await response.json();
-            const dataISO = new Date(sessao.data_sessao).toISOString().slice(0, 16);
-            sessionForm.elements['data_sessao'].value = dataISO;
-            sessionForm.elements['duracao_minutos'].value = sessao.duracao_minutos;
-            sessionForm.elements['tipo_sessao'].value = sessao.tipo_sessao || '';
-            sessionForm.elements['resumo_sessao'].value = sessao.resumo_sessao || '';
-            sessionForm.elements['valor_sessao'].value = sessao.valor_sessao || '';
-            sessionForm.elements['status_pagamento'].value = sessao.status_pagamento || '';
 
-            sessionIdInput.value = sessao.id;
+            fecharModal();
+            document.getElementById('sessoes-link').click();
+            setTimeout(() => {
+                if (sessionListContainer) sessionListContainer.classList.add('hidden');
 
-            document.querySelector('#session-form-container .form-section-title').textContent = 
-                `Editar Sessão de ${sessao.paciente_nome}`;
-            sessionForm.querySelector('button[type="submit"]').textContent = 'Salvar Alterações';
+                const form = document.getElementById('sessionForm');
+                const dataISO = new Date(sessao.data_sessao).toISOString().slice(0, 16);
+                form.elements['data_sessao'].value = dataISO;
+                form.elements['duracao_minutos'].value = sessao.duracao_minutos;
+                form.elements['tipo_sessao'].value = sessao.tipo_sessao;
+                form.elements['valor_sessao'].value = sessao.valor_sessao;
+                form.elements['status_pagamento'].value = sessao.status_pagamento;
+                form.elements['resumo_sessao'].value = sessao.resumo_sessao;
 
-            sessionDetailModal.classList.add('hidden');
-            sessionFormContainer.classList.remove('hidden');
+                sessionIdInput.value = sessao.id;
+
+                const selectedOption = patientSelector.options[patientSelector.selectedIndex];
+                document.querySelector('#session-form-container .form-section-title').textContent = `Editar Sessão de ${selectedOption.text}`;
+                form.querySelector('button[type="submit"]').textContent = 'Salvar Alterações';
+
+                if (sessionFormContainer) sessionFormContainer.classList.remove('hidden');
+            }, 100);
 
         } catch (error) {
             alert(error.message);
@@ -553,13 +720,131 @@ document.addEventListener('DOMContentLoaded', () => {
             alert(error.message);
         }
     };
+    const carregarAvaliacoesRecebidas = async () => {
+        const listDiv = document.getElementById('avaliacoes-recebidas-list');
+        listDiv.innerHTML = '<p>Carregando...</p>';
+        try {
+            const response = await fetch('http://localhost:3000/api/avaliacoes/recebidas', {
+                headers: getAuthHeaders()
+            });
+            const avaliacoes = await response.json();
+            listDiv.innerHTML = '';
+            if (avaliacoes.length === 0) {
+                listDiv.innerHTML = '<p>Nenhuma avaliação recebida ainda.</p>';
+                return;
+            }
+            avaliacoes.forEach(a => {
+                const dataFormatada = new Date(a.data_sessao).toLocaleDateString('pt-BR');
+                listDiv.innerHTML += `
+                <div class="avaliacao-card">
+                    <div class="avaliacao-card-header">
+                        <span class="patient-name">${a.paciente_nome}</span>
+                        <span class="session-date">${dataFormatada}</span>
+                    </div>
+                    <div class="rating">${'⭐'.repeat(a.nota_geral)}</div>
+                    <p class="comment">"${a.comentarios_positivos || 'Sem comentários.'}"</p>
+                </div>
+            `;
+            });
+        } catch (error) {
+            listDiv.innerHTML = '<p class="error-message">Erro ao carregar avaliações.</p>';
+        }
+    };
 
+    const carregarAvaliacoesPendentes = async () => {
+        const listDiv = document.getElementById('avaliacoes-pendentes-list');
+        listDiv.innerHTML = '<p>Carregando...</p>';
+        try {
+            const response = await fetch('http://localhost:3000/api/avaliacoes/pendentes', {
+                headers: getAuthHeaders()
+            });
+            const pendentes = await response.json();
+            listDiv.innerHTML = '';
+            if (pendentes.length === 0) {
+                listDiv.innerHTML = '<p>Nenhuma avaliação pendente. Bom trabalho!</p>';
+                return;
+            }
+            pendentes.forEach(p => {
+                const dataFormatada = new Date(p.data_sessao).toLocaleDateString('pt-BR');
+                listDiv.innerHTML += `
+                <div class="pendente-card">
+                    <div class="pendente-card-header">
+                        <span class="patient-name">${p.paciente_nome}</span>
+                        <span class="session-date">${dataFormatada}</span>
+                    </div>
+                    <button class="btn btn-secondary btn-sm mt-2">Enviar Lembrete</button>
+                </div>
+            `;
+            });
+        } catch (error) {
+            listDiv.innerHTML = '<p class="error-message">Erro ao carregar pendências.</p>';
+        }
+    };
 
-    // =================================================================
-    // --- 4. INICIALIZAÇÃO E EVENT LISTENERS ---
-    // =================================================================
+    const gerarRelatorioFinanceiro = async (event) => {
+        event.preventDefault();
+        const form = document.getElementById('relatorio-financeiro-form');
+        const data_inicio = form.elements['data_inicio'].value;
+        const data_fim = form.elements['data_fim'].value;
+        const resultadoContainer = document.getElementById('relatorio-resultado-container');
+        resultadoContainer.classList.remove('hidden');
+        const summaryGrid = document.getElementById('relatorio-summary-grid');
+        const transactionsBody = document.getElementById('relatorio-transactions-body');
+        summaryGrid.innerHTML = '<p>Gerando...</p>';
+        transactionsBody.innerHTML = '<tr><td colspan="4">Gerando...</td></tr>';
 
-    // Guardião de Autenticação
+        try {
+            const response = await fetch('http://localhost:3000/api/relatorios/financeiro', {
+                method: 'POST',
+                headers: getAuthHeaders(),
+                body: JSON.stringify({
+                    data_inicio,
+                    data_fim
+                })
+            });
+            if (!response.ok) throw new Error('Falha ao gerar o relatório.');
+            const relatorio = await response.json();
+            summaryGrid.innerHTML = `
+            <div class="stat-card">
+                <div class="stat-card-icon icon-financeiro"><i class="fas fa-dollar-sign"></i></div>
+                <div class="stat-card-info">
+                    <span class="stat-card-title">Faturamento no Período</span>
+                    <span class="stat-card-value">${formatarMoeda(relatorio.resumo.faturamento_total)}</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-icon icon-sessoes"><i class="fas fa-calendar-check"></i></div>
+                <div class="stat-card-info">
+                    <span class="stat-card-title">Total de Sessões</span>
+                    <span class="stat-card-value">${relatorio.resumo.total_sessoes}</span>
+                </div>
+            </div>
+        `;
+            transactionsBody.innerHTML = '';
+            if (relatorio.transacoes.length === 0) {
+                transactionsBody.innerHTML = '<tr><td colspan="4">Nenhuma transação encontrada no período.</td></tr>';
+                return;
+            }
+            relatorio.transacoes.forEach(t => {
+                const dataFormatada = new Date(t.data_sessao).toLocaleDateString('pt-BR');
+                const statusClass = t.status_pagamento === 'Pago' ? 'status-pago' : 'status-pendente';
+                transactionsBody.innerHTML += `
+                <tr>
+                    <td>${t.paciente_nome}</td>
+                    <td>${dataFormatada}</td>
+                    <td>${formatarMoeda(t.valor_sessao)}</td>
+                    <td><span class="status-badge ${statusClass}">${t.status_pagamento}</span></td>
+                </tr>
+            `;
+            });
+
+        } catch (error) {
+            console.error(error);
+            summaryGrid.innerHTML = '<p class="error-message">Erro ao gerar resumo.</p>';
+            transactionsBody.innerHTML = '<tr><td colspan="4" class="error-message">Erro ao gerar transações.</td></tr>';
+        }
+    };
+   //listeners
     if (!token && window.location.pathname.includes('index.html')) {
         window.location.href = 'login.html';
         return;
@@ -568,7 +853,6 @@ document.addEventListener('DOMContentLoaded', () => {
         userAvatarSpan.textContent = `Olá, ${nomeTerapeuta}`;
     }
 
-    // Listener de Logout
     if (logoutLink) {
         logoutLink.addEventListener('click', (event) => {
             event.preventDefault();
@@ -578,7 +862,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Listeners de Navegação Principal
     sidebarLinks.forEach(link => {
         link.addEventListener('click', (event) => {
             event.preventDefault();
@@ -586,16 +869,19 @@ document.addEventListener('DOMContentLoaded', () => {
             activateSection(targetId, link.id);
         });
     });
+    const relatorioForm = document.getElementById('relatorio-financeiro-form');
+    if (relatorioForm) {
+        relatorioForm.addEventListener('submit', gerarRelatorioFinanceiro);
+    }
 
     featureCards.forEach(card => {
         card.addEventListener('click', (event) => {
             event.preventDefault();
             const targetLinkId = card.dataset.target;
-            if (targetLinkId) document.getElementById(targetLinkId)?.click();
+            if (targetLinkId) document.getElementById(targetLinkId) ?.click();
         });
     });
 
-    // Listeners do Módulo Pacientes
     if (showPacienteFormBtn) {
         showPacienteFormBtn.addEventListener('click', () => {
             pacienteForm.reset();
@@ -625,7 +911,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Listeners do Módulo Sessões
     if (patientSelector) {
         patientSelector.addEventListener('change', () => {
             const pacienteId = patientSelector.value;
@@ -643,7 +928,7 @@ document.addEventListener('DOMContentLoaded', () => {
             sessionFormPatientName.textContent = selectedOption.text;
             sessionFormContainer.classList.remove('hidden');
             sessionForm.reset();
-            sessionIdInput.value = ''; // Garante modo de criação
+            sessionIdInput.value = '';
             document.querySelector('#session-form-container .form-section-title').textContent = `Registrar Nova Sessão para ${selectedOption.text}`;
             sessionForm.querySelector('button[type="submit"]').textContent = 'Salvar Sessão';
         });
@@ -654,15 +939,48 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Listeners do Modal
-    if (closeModalBtn) closeModalBtn.addEventListener('click', () => sessionDetailModal.classList.add('hidden'));
-    if (sessionDetailModal) {
-        sessionDetailModal.addEventListener('click', (event) => {
-            if (event.target === sessionDetailModal) sessionDetailModal.classList.add('hidden');
+    const fecharModal = () => {
+        const modal = document.getElementById('main-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+        }
+    };
+    if (closeModalBtn) {
+        closeModalBtn.addEventListener('click', fecharModal);
+    }
+    if (mainModal) {
+        mainModal.addEventListener('click', (event) => {
+            if (event.target === mainModal) {
+                fecharModal();
+            }
+        });
+    }
+    window.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && mainModal && !mainModal.classList.contains('hidden')) {
+            fecharModal();
+        }
+    });
+    if (pacientesViewDetail) {
+        pacientesViewDetail.addEventListener('click', (event) => {
+            const pacienteId = pacientesViewDetail.dataset.pacienteId;
+            const addBtn = event.target.closest('#add-medication-btn');
+            const editBtn = event.target.closest('.edit-med-btn');
+            const deleteBtn = event.target.closest('.delete-med-btn');
+
+            if (addBtn) {
+                abrirFormularioMedicacao(pacienteId);
+            }
+            if (editBtn) {
+                const medicacaoId = editBtn.closest('.medication-item').dataset.medicacaoId;
+                abrirFormularioMedicacao(pacienteId, medicacaoId);
+            }
+            if (deleteBtn) {
+                const medicacaoId = deleteBtn.closest('.medication-item').dataset.medicacaoId;
+                excluirMedicacao(medicacaoId, pacienteId);
+            }
         });
     }
 
-    // Listeners de SUBMIT dos Formulários
     if (pacienteForm) {
         pacienteForm.addEventListener('submit', async (event) => {
             event.preventDefault();
@@ -768,8 +1086,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-    
-    // --- PONTO DE PARTIDA DA APLICAÇÃO ---
     activateSection('dashboard-section', 'dashboard-link');
     carregarDashboardStats();
 });

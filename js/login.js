@@ -1,4 +1,3 @@
-// js/login.js (VERSÃO FINAL COM AUTENTICAÇÃO REAL)
 document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('loginForm');
     if (!loginForm) return;
@@ -9,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     loginForm.addEventListener('submit', async (event) => {
         event.preventDefault();
-        credentialsError.classList.add('hidden'); // Esconde erros antigos
+        credentialsError.classList.add('hidden');
 
         const email = usernameInput.value.trim();
         const senha = passwordInput.value.trim();
@@ -33,11 +32,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error(data.error || 'Erro ao tentar fazer login.');
             }
 
-            // SUCESSO! Salva o token e o nome do usuário no navegador
             localStorage.setItem('psyhead-token', data.token);
             localStorage.setItem('terapeuta-nome', data.terapeuta.nome);
-
-            // Redireciona para o dashboard
             window.location.href = 'index.html';
 
         } catch (error) {

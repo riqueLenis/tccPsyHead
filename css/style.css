@@ -834,3 +834,66 @@ textarea.form-input {
     border-bottom-left-radius: 12px;
     border-bottom-right-radius: 12px;
 }
+/*modulo de medicacoes*/
+.medication-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-light);
+}
+.medication-item:last-child {
+    border-bottom: none;
+}
+.medication-info strong {
+    font-weight: 600;
+    color: var(--primary-dark);
+}
+.medication-info span {
+    color: #667085;
+    margin-left: 0.5rem;
+}
+.medication-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+/*estilos de avaliacoes*/
+.avaliacao-card, .pendente-card {
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.avaliacao-card-header, .pendente-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.avaliacao-card-header .patient-name, .pendente-card-header .patient-name {
+    font-weight: 600;
+    color: var(--primary-dark);
+}
+
+.avaliacao-card-header .session-date, .pendente-card-header .session-date {
+    font-size: 0.9rem;
+    color: #667085;
+}
+
+.avaliacao-card .rating {
+    color: #f59e0b;
+    margin-bottom: 0.75rem;
+}
+
+.avaliacao-card .comment {
+    font-style: italic;
+    color: #4b5563;
+    padding-left: 1rem;
+    border-left: 3px solid var(--border-light);
+}
+/*sessao de relatorios*/
+.report-controls .form-group {
+    flex-grow: 1;
+    max-width: 250px;
+}

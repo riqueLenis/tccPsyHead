@@ -31,12 +31,6 @@
                     <li class="mb-2"><a href="#" id="agenda-link"
                             class="flex items-center p-3 rounded-lg hover:bg-white/10 transition-colors duration-200"><i
                                 class="fas fa-clock mr-3 text-lg"></i> Agenda de Atendimentos</a></li>
-                    <li class="mb-2"><a href="#" id="medicacoes-link"
-                            class="flex items-center p-3 rounded-lg hover:bg-white/10 transition-colors duration-200"><i
-                                class="fas fa-pills mr-3 text-lg"></i> Acompanhamento de Medicações</a></li>
-                    <li class="mb-2"><a href="#" id="chat-link"
-                            class="flex items-center p-3 rounded-lg hover:bg-white/10 transition-colors duration-200"><i
-                                class="fas fa-comments mr-3 text-lg"></i> Chat Seguro</a></li>
                     <li class="mb-2"><a href="#" id="avaliacoes-link"
                             class="flex items-center p-3 rounded-lg hover:bg-white/10 transition-colors duration-200"><i
                                 class="fas fa-star mr-3 text-lg"></i> Avaliações dos Atendimentos</a></li>
@@ -74,7 +68,7 @@
                 <section id="dashboard-section" class="content-section active">
                     <div class="dashboard-header">
                         <h2 class="section-title">Bem-vindo(a) de volta, Henrique!</h2>
-                        <p class="section-subtitle">Aqui está um resumo rápido da sua clínica hoje, 11 de Setembro de
+                        <p class="section-subtitle">Aqui está um resumo rápido da sua clínica hoje, 15 de Setembro de
                             2025.</p>
                     </div>
 
@@ -112,7 +106,8 @@
                             </div>
                             <div class="stat-card-info">
                                 <span class="stat-card-title">Avaliações Pendentes</span>
-                                <span class="stat-card-value">2</span> </div>
+                                <span id="stat-avaliacoes-pendentes" class="stat-card-value">2</span>
+                            </div>
                         </div>
                     </div>
 
@@ -305,7 +300,37 @@
                                 </button>
                             </div>
                         </div>
+
                         <div class="patient-detail-card">
+                            <div class="detail-section">
+                                <h4 class="detail-section-title">Dados Pessoais</h4>
+                                <div class="detail-grid" id="detail-grid-pessoais">
+                                </div>
+                            </div>
+
+                            <div class="detail-section">
+                                <h4 class="detail-section-title">Contato</h4>
+                                <div class="detail-grid" id="detail-grid-contato">
+                                </div>
+                            </div>
+
+                            <div class="detail-section">
+                                <h4 class="detail-section-title">Dados Clínicos</h4>
+                                <div class="detail-grid" id="detail-grid-clinicos">
+                                </div>
+                            </div>
+
+                            <div class="detail-section">
+                                <div class="page-header" style="margin-bottom: 1.5rem; align-items: center;">
+                                    <h4 class="detail-section-title" style="border: none; margin: 0;">Medicações em Uso
+                                    </h4>
+                                    <button id="add-medication-btn" class="btn btn-primary btn-sm">
+                                        <i class="fas fa-plus"></i> Adicionar Medicação
+                                    </button>
+                                </div>
+                                <div id="medication-list">
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </section>
@@ -455,12 +480,79 @@
                     </div>
                 </section>
 
+                <section id="avaliacoes-section" class="content-section hidden">
+                    <div class="page-header">
+                        <h2 class="section-title">Avaliações dos Atendimentos</h2>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div class="bg-white p-6 rounded-lg shadow-md">
+                            <h3 class="form-section-title">Avaliações Recebidas</h3>
+                            <div id="avaliacoes-recebidas-list" class="space-y-4 mt-4">
+                                <p>Carregando...</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-lg shadow-md">
+                            <h3 class="form-section-title">Avaliações Pendentes</h3>
+                            <div id="avaliacoes-pendentes-list" class="space-y-4 mt-4">
+                                <p>Carregando...</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="relatorios-section" class="content-section hidden">
+                    <div class="page-header">
+                        <h2 class="section-title">Relatórios Centralizados</h2>
+                    </div>
+
+                    <div class="report-controls bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="form-section-title">Relatório Financeiro por Período</h3>
+                        <form id="relatorio-financeiro-form" class="flex items-end gap-4">
+                            <div class="form-group">
+                                <label for="data-inicio-relatorio" class="form-label">Data de Início</label>
+                                <input type="date" id="data-inicio-relatorio" name="data_inicio" required
+                                    class="form-input">
+                            </div>
+                            <div class="form-group">
+                                <label for="data-fim-relatorio" class="form-label">Data de Fim</label>
+                                <input type="date" id="data-fim-relatorio" name="data_fim" required class="form-input">
+                            </div>
+                            <button type="submit" class="btn btn-primary">Gerar Relatório</button>
+                        </form>
+                    </div>
+
+                    <div id="relatorio-resultado-container" class="mt-8 hidden">
+                        <h3 class="form-section-title">Resultados para o Período</h3>
+
+                        <div id="relatorio-summary-grid" class="stats-grid">
+                        </div>
+
+                        <div class="transactions-container bg-white p-6 rounded-lg shadow-md">
+                            <h3 class="form-section-title">Transações no Período</h3>
+                            <table class="transactions-table">
+                                <thead>
+                                    <tr>
+                                        <th>Paciente</th>
+                                        <th>Data da Sessão</th>
+                                        <th>Valor</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="relatorio-transactions-body">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
             </main>
         </div>
     </div>
 
     <!--detalhes da sessão-->
-    <div id="session-detail-modal" class="modal-overlay hidden">
+    <div id="main-modal" class="modal-overlay hidden">
         <div class="modal-content">
             <div class="modal-header">
                 <h3 class="modal-title">Detalhes da Sessão</h3>

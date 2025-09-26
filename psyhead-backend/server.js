@@ -537,6 +537,138 @@ app.get('/api/sessoes', verificarToken, async (req, res) => {
     }
 });
 
+//rota pra add uma medicação pra um paciente
+app.post('/api/pacientes/:pacienteId/medicacoes', verificarToken, async (req, res) => {
+    const {
+        pacienteId
+    } = req.params;
+    const {
+        nome_medicamento,
+        dosagem,
+        frequencia,
+        data_inicio,
+        data_termino,
+        medico_prescritor,
+        observacoes
+    } = req.body;
+
+    if (!nome_medicamento || !data_inicio) {
+        return res.status(400).json({
+            error: 'Nome do medicamento e data de início são obrigatórios.'
+        });
+    }
+
+    try {
+        const queryText = `
+      INSERT INTO medicacoes (
+        paciente_id, nome_medicamento, dosagem, frequencia, data_inicio,
+        data_termino, medico_prescritor, observacoes
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      RETURNING *;
+    `;
+        const values = [
+            pacienteId, nome_medicamento, dosagem, frequencia, data_inicio,
+            data_termino || null, medico_prescritor, observacoes
+        ];
+
+        const result = await pool.query(queryText, values);
+        res.status(201).json({
+            message: 'Medicação registrada com sucesso!',
+            medicacao: result.rows[0]
+        });
+    } catch (error) {
+        console.error('Erro ao registrar medicação:', error);
+        res.status(500).json({
+            error: 'Erro interno do servidor.'
+        });
+    }
+});
+
+//rota pra listar todas as medicações de um paciente
+app.get('/api/pacientes/:pacienteId/medicacoes', verificarToken, async (req, res) => {
+    const {
+        pacienteId
+    } = req.params;
+    try {
+        const queryText = 'SELECT * FROM medicacoes WHERE paciente_id = $1 ORDER BY data_inicio DESC;';
+        const result = await pool.query(queryText, [pacienteId]);
+        res.status(200).json(result.rows);
+    } catch (error) {
+        console.error('Erro ao buscar medicações do paciente:', error);
+        res.status(500).json({
+            error: 'Erro interno do servidor.'
+        });
+    }
+});
+
+//rota pra atualizar uma medicacao
+app.put('/api/medicacoes/:id', verificarToken, async (req, res) => {
+    const {
+        id
+    } = req.params;
+    const {
+        nome_medicamento,
+        dosagem,
+        frequencia,
+        data_inicio,
+        data_termino,
+        medico_prescritor,
+        observacoes
+    } = req.body;
+
+    try {
+        const queryText = `
+      UPDATE medicacoes SET
+        nome_medicamento = $1, dosagem = $2, frequencia = $3, data_inicio = $4,
+        data_termino = $5, medico_prescritor = $6, observacoes = $7
+      WHERE id = $8 RETURNING *;
+    `;
+        const values = [
+            nome_medicamento, dosagem, frequencia, data_inicio,
+            data_termino || null, medico_prescritor, observacoes, id
+        ];
+        const result = await pool.query(queryText, values);
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                error: 'Medicação não encontrada.'
+            });
+        }
+        res.status(200).json({
+            message: 'Medicação atualizada com sucesso!',
+            medicacao: result.rows[0]
+        });
+    } catch (error) {
+        console.error('Erro ao atualizar medicação:', error);
+        res.status(500).json({
+            error: 'Erro interno do servidor.'
+        });
+    }
+});
+
+//rota pra excluir uma medicacao
+app.delete('/api/medicacoes/:id', verificarToken, async (req, res) => {
+    const {
+        id
+    } = req.params;
+    try {
+        const queryText = 'DELETE FROM medicacoes WHERE id = $1 RETURNING id;';
+        const result = await pool.query(queryText, [id]);
+        if (result.rowCount === 0) {
+            return res.status(404).json({
+                error: 'Medicação não encontrada.'
+            });
+        }
+        res.status(200).json({
+            message: 'Medicação excluída com sucesso.'
+        });
+    } catch (error) {
+        console.error('Erro ao excluir medicação:', error);
+        res.status(500).json({
+            error: 'Erro interno do servidor.'
+        });
+    }
+});
+
 //rota pro resumo financeiro do mes atual
 app.get('/api/financeiro/resumo', verificarToken, async (req, res) => {
     console.log('Buscando resumo financeiro do mês atual');
@@ -588,6 +720,142 @@ app.get('/api/financeiro/transacoes', verificarToken, async (req, res) => {
         res.status(200).json(result.rows);
     } catch (error) {
         console.error('Erro ao buscar transações:', error);
+        res.status(500).json({
+            error: 'Erro interno do servidor.'
+        });
+    }
+});
+//relatorios rota geração
+app.post('/api/relatorios/financeiro', verificarToken, async (req, res) => {
+    const { data_inicio, data_fim } = req.body;
+    console.log(`Gerando relatório financeiro de ${data_inicio} a ${data_fim}`);
+
+    if (!data_inicio || !data_fim) {
+        return res.status(400).json({ error: 'Data de início e data de fim são obrigatórias.' });
+    }
+
+    try {
+        const queryResumo = `
+            SELECT
+                COALESCE(SUM(CASE WHEN status_pagamento = 'Pago' THEN valor_sessao ELSE 0 END), 0) AS faturamento_total,
+                COUNT(*) AS total_sessoes
+            FROM sessoes
+            WHERE data_sessao::date BETWEEN $1 AND $2;
+        `;
+        
+        const queryTransacoes = `
+            SELECT s.data_sessao, s.valor_sessao, s.status_pagamento, p.nome_completo AS paciente_nome
+            FROM sessoes s
+            JOIN pacientes p ON s.paciente_id = p.id
+            WHERE s.data_sessao::date BETWEEN $1 AND $2
+            ORDER BY s.data_sessao DESC;
+        `;
+
+        const resumoResult = await pool.query(queryResumo, [data_inicio, data_fim]);
+        const transacoesResult = await pool.query(queryTransacoes, [data_inicio, data_fim]);
+
+        res.status(200).json({
+            resumo: resumoResult.rows[0],
+            transacoes: transacoesResult.rows
+        });
+
+    } catch (error) {
+        console.error('Erro ao gerar relatório financeiro:', error);
+        res.status(500).json({ error: 'Erro interno do servidor.' });
+    }
+});
+
+//rotas das avaliacoes
+app.post('/api/sessoes/:sessaoId/avaliacao', verificarToken, async (req, res) => {
+    const {
+        sessaoId
+    } = req.params;
+    const {
+        nota_geral,
+        comentarios_positivos,
+        pontos_a_melhorar
+    } = req.body;
+
+    if (!nota_geral) return res.status(400).json({
+        error: 'A nota geral é obrigatória.'
+    });
+
+    try {
+        const queryText = `
+            INSERT INTO avaliacoes (sessao_id, nota_geral, comentarios_positivos, pontos_a_melhorar, status)
+            VALUES ($1, $2, $3, $4, 'Respondida')
+            RETURNING *;
+        `;
+        const values = [sessaoId, nota_geral, comentarios_positivos, pontos_a_melhorar];
+        const result = await pool.query(queryText, values);
+        res.status(201).json({
+            message: 'Avaliação registrada com sucesso!',
+            avaliacao: result.rows[0]
+        });
+    } catch (error) {
+        console.error('Erro ao registrar avaliação:', error);
+        res.status(500).json({
+            error: 'Erro interno do servidor.'
+        });
+    }
+});
+//continuacao rota avaliacao
+app.get('/api/sessoes/:sessaoId/avaliacao', verificarToken, async (req, res) => {
+    const {
+        sessaoId
+    } = req.params;
+    try {
+        const queryText = 'SELECT * FROM avaliacoes WHERE sessao_id = $1;';
+        const result = await pool.query(queryText, [sessaoId]);
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                message: 'Nenhuma avaliação encontrada para esta sessão.'
+            });
+        }
+        res.status(200).json(result.rows[0]);
+    } catch (error) {
+        console.error('Erro ao buscar avaliação:', error);
+        res.status(500).json({
+            error: 'Erro interno do servidor.'
+        });
+    }
+});
+
+//rotas das avaliacoes pendentes
+app.get('/api/avaliacoes/pendentes', verificarToken, async (req, res) => {
+    try {
+        const queryText = `
+            SELECT s.id, s.data_sessao, p.nome_completo AS paciente_nome
+            FROM sessoes s
+            JOIN pacientes p ON s.paciente_id = p.id
+            LEFT JOIN avaliacoes a ON s.id = a.sessao_id
+            WHERE s.data_sessao < NOW() AND a.id IS NULL
+            ORDER BY s.data_sessao DESC;
+        `;
+        const result = await pool.query(queryText);
+        res.status(200).json(result.rows);
+    } catch (error) {
+        console.error('Erro ao buscar avaliações pendentes:', error);
+        res.status(500).json({
+            error: 'Erro interno do servidor.'
+        });
+    }
+});
+
+//rota para lisya as avaliacoes recebidas
+app.get('/api/avaliacoes/recebidas', verificarToken, async (req, res) => {
+    try {
+        const queryText = `
+            SELECT a.id, a.nota_geral, a.comentarios_positivos, s.data_sessao, p.nome_completo AS paciente_nome
+            FROM avaliacoes a
+            JOIN sessoes s ON a.sessao_id = s.id
+            JOIN pacientes p ON s.paciente_id = p.id
+            ORDER BY s.data_sessao DESC;
+        `;
+        const result = await pool.query(queryText);
+        res.status(200).json(result.rows);
+    } catch (error) {
+        console.error('Erro ao buscar avaliações recebidas:', error);
         res.status(500).json({
             error: 'Erro interno do servidor.'
         });
