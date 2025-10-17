@@ -550,6 +550,36 @@
                     </div>
                 </section>
 
+                <section id="config-section" class="content-section hidden">
+                    <div class="page-header">
+                        <h2 class="section-title">Configurações da Conta</h2>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-lg shadow-md max-w-2xl mx-auto">
+                        <h3 class="form-section-title">Alterar Senha</h3>
+                        <form id="change-password-form" class="space-y-4 mt-4">
+                            <div class="form-group">
+                                <label for="senha-antiga" class="form-label">Senha Atual</label>
+                                <input type="password" id="senha-antiga" name="senha_antiga" required
+                                    class="form-input">
+                            </div>
+                            <div class="form-group">
+                                <label for="nova-senha" class="form-label">Nova Senha</label>
+                                <input type="password" id="nova-senha" name="nova_senha" required class="form-input">
+                            </div>
+                            <div class="form-group">
+                                <label for="confirmar-nova-senha" class="form-label">Confirmar Nova Senha</label>
+                                <input type="password" id="confirmar-nova-senha" name="confirmar_nova_senha" required
+                                    class="form-input">
+                            </div>
+                            <div id="password-error-message" class="error-message text-center hidden"></div>
+                            <div class="form-actions pt-4">
+                                <button type="submit" class="btn btn-primary">Salvar Nova Senha</button>
+                            </div>
+                        </form>
+                    </div>
+                </section>
+
             </main>
         </div>
     </div>

@@ -727,11 +727,16 @@ app.get('/api/financeiro/transacoes', verificarToken, async (req, res) => {
 });
 //relatorios rota geração
 app.post('/api/relatorios/financeiro', verificarToken, async (req, res) => {
-    const { data_inicio, data_fim } = req.body;
+    const {
+        data_inicio,
+        data_fim
+    } = req.body;
     console.log(`Gerando relatório financeiro de ${data_inicio} a ${data_fim}`);
 
     if (!data_inicio || !data_fim) {
-        return res.status(400).json({ error: 'Data de início e data de fim são obrigatórias.' });
+        return res.status(400).json({
+            error: 'Data de início e data de fim são obrigatórias.'
+        });
     }
 
     try {
@@ -742,7 +747,7 @@ app.post('/api/relatorios/financeiro', verificarToken, async (req, res) => {
             FROM sessoes
             WHERE data_sessao::date BETWEEN $1 AND $2;
         `;
-        
+
         const queryTransacoes = `
             SELECT s.data_sessao, s.valor_sessao, s.status_pagamento, p.nome_completo AS paciente_nome
             FROM sessoes s
@@ -761,7 +766,9 @@ app.post('/api/relatorios/financeiro', verificarToken, async (req, res) => {
 
     } catch (error) {
         console.error('Erro ao gerar relatório financeiro:', error);
-        res.status(500).json({ error: 'Erro interno do servidor.' });
+        res.status(500).json({
+            error: 'Erro interno do servidor.'
+        });
     }
 });
 
@@ -856,6 +863,46 @@ app.get('/api/avaliacoes/recebidas', verificarToken, async (req, res) => {
         res.status(200).json(result.rows);
     } catch (error) {
         console.error('Erro ao buscar avaliações recebidas:', error);
+        res.status(500).json({
+            error: 'Erro interno do servidor.'
+        });
+    }
+});
+
+// rota pro terapeuta atualizar a  propria senha
+app.put('/api/terapeutas/atualizar-senha', verificarToken, async (req, res) => {
+    const {
+        senha_antiga,
+        nova_senha
+    } = req.body;
+    const terapeutaId = req.terapeuta.id;
+
+    if (!senha_antiga || !nova_senha) {
+        return res.status(400).json({
+            error: 'Todos os campos são obrigatórios.'
+        });
+    }
+    try {
+        const result = await pool.query('SELECT senha_hash FROM terapeutas WHERE id = $1', [terapeutaId]);
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                error: 'Terapeuta não encontrado.'
+            });
+        }
+        const senhaHashAtual = result.rows[0].senha_hash;
+        const senhaAntigaValida = await bcrypt.compare(senha_antiga, senhaHashAtual);
+        if (!senhaAntigaValida) {
+            return res.status(401).json({
+                error: 'A senha antiga está incorreta.'
+            });
+        }
+        const novaSenhaHash = await bcrypt.hash(nova_senha, 10);
+        await pool.query('UPDATE terapeutas SET senha_hash = $1 WHERE id = $2', [novaSenhaHash, terapeutaId]);
+        res.status(200).json({
+            message: 'Senha atualizada com sucesso!'
+        });
+    } catch (error) {
+        console.error('Erro ao atualizar senha:', error);
         res.status(500).json({
             error: 'Erro interno do servidor.'
         });

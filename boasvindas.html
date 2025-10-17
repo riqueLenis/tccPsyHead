@@ -1,50 +1,82 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bem-vindo ao PsyHead</title>
-    <link rel="icon" href="images/favicon.ico" type="image/x-icon">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="assets/logo.png" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/boasvindas.css">
 </head>
-<body class="font-sans bg-bg-light flex items-center justify-center min-h-screen text-text-dark">
 
-    <div class="relative w-full max-w-4xl bg-white p-10 md:p-12 rounded-lg shadow-2xl text-center overflow-hidden">
-        <div class="absolute top-0 left-0 w-full h-full opacity-5" style="background-image: url('images/therapy-pattern.svg'); background-size: cover; background-position: center;"></div>
-        
-        <div class="relative z-10">
-            <h1 class="text-5xl md:text-6xl font-extrabold text-primary-dark mb-4 animate-fade-in-down">Bem-vindo(a) ao <span class="text-primary-light">PsyHead</span></h1>
-            <p class="text-xl md:text-2xl text-gray-700 mb-8 animate-fade-in-up">Seu sistema inteligente para gestão psicológica.</p>
+<body>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
-                <div class="feature-card bg-primary-light/10 p-6 rounded-lg shadow-md animate-fade-in delay-200">
-                    <i class="fas fa-users text-4xl text-primary-dark mb-4"></i>
-                    <h3 class="text-xl font-semibold text-primary-dark mb-2">Gestão de Pacientes</h3>
-                    <p class="text-gray-700">Organize prontuários e histórico de forma eficiente.</p>
+    <div class="welcome-container">
+        <div class="pattern-bg"></div>
+
+        <div class="content-wrapper">
+            <h1 class="hero-title">Bem-vindo(a) ao <span>PsyHead</span></h1>
+            <p class="hero-subtitle">Seu sistema inteligente para gestão psicológica, projetado para profissionais que
+                buscam eficiência, segurança e inovação no atendimento ao paciente.</p>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <i class="fas fa-users feature-icon"></i>
+                    <h3 class="feature-title">Gestão de Pacientes</h3>
+                    <p class="feature-description">Mantenha prontuários eletrônicos completos, histórico de sessões e
+                        evoluções clínicas organizados em um só lugar, com conformidade total à LGPD.</p>
                 </div>
-                <div class="feature-card bg-secondary-green/10 p-6 rounded-lg shadow-md animate-fade-in delay-400">
-                    <i class="fas fa-calendar-check text-4xl text-secondary-green mb-4"></i>
-                    <h3 class="text-xl font-semibold text-primary-dark mb-2">Agenda Otimizada</h3>
-                    <p class="text-gray-700">Agendamentos e lembretes para nunca perder um compromisso.</p>
+                <div class="feature-card">
+                    <i class="fas fa-calendar-check feature-icon"></i>
+                    <h3 class="feature-title">Agenda Otimizada</h3>
+                    <p class="feature-description">Gerencie agendamentos com lembretes automáticos via e-mail e SMS,
+                        evite sobreposições e otimize o tempo da sua clínica.</p>
                 </div>
-                <div class="feature-card bg-accent-orange/10 p-6 rounded-lg shadow-md animate-fade-in delay-600">
-                    <i class="fas fa-comments text-4xl text-accent-orange mb-4"></i>
-                    <h3 class="text-xl font-semibold text-primary-dark mb-2">Comunicação Segura</h3>
-                    <p class="text-gray-700">Chat criptografado com pais e responsáveis.</p>
+                <div class="feature-card">
+                    <i class="fas fa-comments feature-icon"></i>
+                    <h3 class="feature-title">Comunicação Segura</h3>
+                    <p class="feature-description">Mantenha contato confidencial com pacientes e responsáveis através de
+                        chat criptografado, garantindo privacidade em todas as interações.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-chart-line feature-icon" style="color: var(--accent-orange);"></i>
+                    <h3 class="feature-title">Relatórios Analíticos</h3>
+                    <p class="feature-description">Gere insights valiosos com dashboards personalizáveis, acompanhe
+                        métricas de atendimento e identifique padrões para melhorar sua prática.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-headset feature-icon" style="color: var(--secondary-green);"></i>
+                    <h3 class="feature-title">Suporte 24/7</h3>
+                    <p class="feature-description">Equipe dedicada de especialistas disponível a qualquer hora para
+                        resolver dúvidas e garantir que seu sistema funcione perfeitamente.</p>
                 </div>
             </div>
 
-            <p class="text-lg text-gray-700 mb-8 animate-fade-in-up delay-800">
-                Estamos aqui para simplificar sua rotina e otimizar o atendimento na sua clínica.
+            <p class="intro-paragraph">
+                No PsyHead, combinamos tecnologia de ponta com foco na saúde mental, ajudando você a focar no que
+                realmente importa: o bem-estar dos seus pacientes. Nossa plataforma é usada por mais de 500
+                profissionais em todo o Brasil, com atualizações constantes para atender às suas necessidades.
             </p>
 
-            <button id="goToDashboardBtn"
-                    class="px-8 py-4 bg-primary-light text-white text-xl font-bold rounded-full shadow-lg hover:bg-blue-600 transform hover:scale-105 transition-all duration-300 animate-fade-in delay-1000">
-                Começar Agora <i class="fas fa-arrow-right ml-2"></i>
-            </button>
+            <div class="benefits-section">
+                <h2 class="benefits-title">Por que escolher o PsyHead?</h2>
+                <ul class="benefits-list">
+                    <li>Interface intuitiva e mobile-friendly para acesso em qualquer dispositivo.</li>
+                    <li>Integração segura com ferramentas de pagamento e telemedicina.</li>
+                    <li>Backup automático e recuperação de dados em caso de emergências.</li>
+                    <li>Personalização total para se adequar ao fluxo da sua clínica.</li>
+                    <li>Compromisso com a ética e a confidencialidade profissional.</li>
+                </ul>
+            </div>
+
+            <a href="#" id="goToDashboardBtn" class="cta-button">
+                Começar Agora <i class="fas fa-arrow-right"></i>
+            </a>
         </div>
     </div>
 
     <script src="js/boasvindas.js"></script>
 </body>
+
 </html>

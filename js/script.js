@@ -876,6 +876,51 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    //tela de configs senhas
+    const changePasswordForm = document.getElementById('change-password-form');
+    if (changePasswordForm) {
+        changePasswordForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const errorMessageDiv = document.getElementById('password-error-message');
+            errorMessageDiv.classList.add('hidden');
+
+            const senha_antiga = document.getElementById('senha-antiga').value;
+            const nova_senha = document.getElementById('nova-senha').value;
+            const confirmar_nova_senha = document.getElementById('confirmar-nova-senha').value;
+
+            if (nova_senha !== confirmar_nova_senha) {
+                errorMessageDiv.textContent = 'A nova senha e a confirmação não correspondem.';
+                errorMessageDiv.classList.remove('hidden');
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:3000/api/terapeutas/atualizar-senha', {
+                    method: 'PUT',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({
+                        senha_antiga,
+                        nova_senha
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Ocorreu um erro.');
+                }
+
+                alert(data.message);
+                changePasswordForm.reset();
+
+            } catch (error) {
+                errorMessageDiv.textContent = error.message;
+                errorMessageDiv.classList.remove('hidden');
+            }
+        });
+    }
+
     sidebarLinks.forEach(link => {
         link.addEventListener('click', (event) => {
             event.preventDefault();
