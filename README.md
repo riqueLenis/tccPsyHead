@@ -23,3 +23,8 @@ Ele centraliza informações, facilita a comunicação entre terapeutas e respon
 - **Anotações e relatórios** de sessões
 - **Notificações automáticas** (consultas, pagamentos e medicamentos)
 - **Integração com IA** para análise de sentimentos das anotações
+
+- <img width="494" height="517" alt="image" src="https://github.com/user-attachments/assets/1356ce2e-5d1d-4a11-a489-0e985344f9a5" />
+<img width="1916" height="951" alt="image" src="https://github.com/user-attachments/assets/9241ad0d-4c14-4817-be39-07bf50e73046" />
+<img width="1646" height="390" alt="image" src="https://github.com/user-attachments/assets/3cc15b53-fdd8-4d37-909b-83b9a8b5187f" />
+<img width="1916" height="743" alt="image" src="https://github.com/user-attachments/assets/2d5d8337-3647-4160-a61e-daf837b78a08" />
