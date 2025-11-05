@@ -60,6 +60,7 @@ body {
     background-size: cover;
     background-position: center;
     border-radius: var(--border-radius);
+    pointer-events: none;
 }
 
 .header-section {

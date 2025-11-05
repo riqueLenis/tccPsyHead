@@ -1,52 +1,67 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>PsyHead - Login</title>
-    <link rel="icon" href="assets/logo.png" type="image/x-icon">
-    <link rel="stylesheet" href="css/login.css">
-</head>
+    <link rel="icon" href="assets/logo.png" type="image/x-icon" />
+    <link rel="stylesheet" href="css/login.css" />
+  </head>
 
-<body>
-
+  <body>
     <div class="login-container">
-        <div class="pattern-bg"></div>
+      <div class="pattern-bg"></div>
 
-        <div class="header-section">
-            <img src="assets/logoPsy.png" class="logoPsyLogin" alt="PsyHead Logo">
-            <p class="tagline">Seu sistema inteligente para gestão psicológica.</p>
+      <div class="header-section">
+        <img src="assets/logoPsy.png" class="logoPsyLogin" alt="PsyHead Logo" />
+        <p class="tagline">Seu sistema inteligente para gestão psicológica.</p>
+      </div>
+
+      <form id="loginForm" class="space-y-6">
+        <div class="form-group">
+          <input
+            type="email"
+            id="username"
+            name="username"
+            required
+            class="form-input"
+            placeholder="seu.email@exemplo.com"
+          />
+          <label for="username" class="form-label">E-mail</label>
+          <p id="usernameError" class="form-error-message hidden">
+            Por favor, insira um e-mail válido.
+          </p>
         </div>
 
-        <form id="loginForm" class="space-y-6">
-            <div class="form-group">
-                <input type="email" id="username" name="username" required class="form-input"
-                    placeholder="seu.email@exemplo.com">
-                <label for="username" class="form-label">E-mail</label>
-                <p id="usernameError" class="form-error-message hidden">Por favor, insira um e-mail válido.</p>
-            </div>
+        <div class="form-group">
+          <input
+            type="password"
+            id="password"
+            name="password"
+            required
+            class="form-input"
+            placeholder="••••••••"
+          />
+          <label for="password" class="form-label">Senha</label>
+          <p id="passwordError" class="form-error-message hidden">
+            A senha deve ter pelo menos 6 caracteres.
+          </p>
+        </div>
 
-            <div class="form-group">
-                <input type="password" id="password" name="password" required class="form-input" placeholder="••••••••">
-                <label for="password" class="form-label">Senha</label>
-                <p id="passwordError" class="form-error-message hidden">A senha deve ter pelo menos 6 caracteres.</p>
-            </div>
+        <div id="credentialsError" class="credentials-error hidden">
+          E-mail ou senha incorretos. Tente novamente.
+        </div>
 
-            <div id="credentialsError" class="credentials-error hidden">E-mail ou senha incorretos. Tente novamente.
-            </div>
+        <div class="pt-4">
+          <button type="submit" class="btn btn-primary">
+            Entrar no Sistema
+          </button>
+        </div>
+      </form>
 
-            <div class="pt-4">
-                <button type="submit" class="btn btn-primary">
-                    Entrar no Sistema
-                </button>
-            </div>
-        </form>
-
-        <a href="#" class="forgot-password">Esqueceu sua senha?</a>
+      <a href="cadastro.html" class="forgot-password">Faça seu cadastro</a>
     </div>
 
     <script src="js/login.js"></script>
-</body>
-
+  </body>
 </html>
