@@ -1215,6 +1215,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const transactionsBody = document.getElementById(
       "relatorio-transactions-body"
     );
+    const downloadBtn = document.getElementById("download-pdf-btn");
     summaryGrid.innerHTML = "<p>Gerando...</p>";
     transactionsBody.innerHTML = '<tr><td colspan="4">Gerando...</td></tr>';
 
@@ -1232,26 +1233,29 @@ document.addEventListener("DOMContentLoaded", () => {
       );
       if (!response.ok) throw new Error("Falha ao gerar o relatório.");
       const relatorio = await response.json();
+      const resumoData = relatorio.resumo;
+      const transacoesData = relatorio.transacoes;
+
       summaryGrid.innerHTML = `
-            <div class="stat-card">
-                <div class="stat-card-icon icon-financeiro"><i class="fas fa-dollar-sign"></i></div>
-                <div class="stat-card-info">
-                    <span class="stat-card-title">Faturamento no Período</span>
-                    <span class="stat-card-value">${formatarMoeda(
-                      relatorio.resumo.faturamento_total
-                    )}</span>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-card-icon icon-sessoes"><i class="fas fa-calendar-check"></i></div>
-                <div class="stat-card-info">
-                    <span class="stat-card-title">Total de Sessões</span>
-                    <span class="stat-card-value">${
-                      relatorio.resumo.total_sessoes
-                    }</span>
-                </div>
-            </div>
-        `;
+          <div class="stat-card">
+              <div class="stat-card-icon icon-financeiro"><i class="fas fa-dollar-sign"></i></div>
+              <div class="stat-card-info">
+                  <span class="stat-card-title">Faturamento no Período</span>
+                  <span class="stat-card-value">${formatarMoeda(
+                    relatorio.resumo.faturamento_total
+                  )}</span>
+              </div>
+          </div>
+          <div class="stat-card">
+              <div class="stat-card-icon icon-sessoes"><i class="fas fa-calendar-check"></i></div>
+              <div class="stat-card-info">
+                  <span class="stat-card-title">Total de Sessões</span>
+                  <span class="stat-card-value">${
+                    relatorio.resumo.total_sessoes
+                  }</span>
+              </div>
+          </div>
+      `;
       transactionsBody.innerHTML = "";
       if (relatorio.transacoes.length === 0) {
         transactionsBody.innerHTML =
@@ -1265,16 +1269,22 @@ document.addEventListener("DOMContentLoaded", () => {
         const statusClass =
           t.status_pagamento === "Pago" ? "status-pago" : "status-pendente";
         transactionsBody.innerHTML += `
-                <tr>
-                    <td>${t.paciente_nome}</td>
-                    <td>${dataFormatada}</td>
-                    <td>${formatarMoeda(t.valor_sessao)}</td>
-                    <td><span class="status-badge ${statusClass}">${
+              <tr>
+                  <td>${t.paciente_nome}</td>
+                  <td>${dataFormatada}</td>
+                  <td>${formatarMoeda(t.valor_sessao)}</td>
+                  <td><span class="status-badge ${statusClass}">${
           t.status_pagamento
         }</span></td>
-                </tr>
-            `;
+              </tr>
+          `;
       });
+
+      if (downloadBtn) {
+        downloadBtn.classList.remove("hidden");
+        downloadBtn.onclick = () =>
+          gerarPDFRelatorio(data_inicio, data_fim, resumoData, transacoesData);
+      }
     } catch (error) {
       console.error(error);
       summaryGrid.innerHTML =
@@ -1283,6 +1293,65 @@ document.addEventListener("DOMContentLoaded", () => {
         '<tr><td colspan="4" class="error-message">Erro ao gerar transações.</td></tr>';
     }
   };
+
+  const gerarPDFRelatorio = (dataInicio, dataFim, resumo, transacoes) => {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    doc.setFontSize(16);
+    doc.text("Relatório Financeiro - PsyHead", 20, 20);
+    doc.setFontSize(12);
+    doc.text(
+      `Período: ${new Date(dataInicio).toLocaleDateString(
+        "pt-BR"
+      )} a ${new Date(dataFim).toLocaleDateString("pt-BR")}`,
+      20,
+      35
+    );
+
+    // Resumo
+    doc.setFontSize(14);
+    doc.text("Resumo do Período", 20, 55);
+    doc.setFontSize(10);
+    let yPos = 70;
+    doc.text(
+      `Faturamento Total: ${formatarMoeda(resumo.faturamento_total)}`,
+      20,
+      yPos
+    );
+    yPos += 10;
+    doc.text(`Total de Sessões: ${resumo.total_sessoes}`, 20, yPos);
+
+    if (transacoes.length > 0) {
+      yPos += 20;
+      doc.setFontSize(14);
+      doc.text("Transações", 20, yPos);
+      yPos += 10;
+      doc.setFontSize(8);
+      doc.text("Paciente | Data | Valor | Status", 20, yPos);
+      yPos += 7;
+      transacoes.forEach((t, index) => {
+        if (yPos > 280) {
+          doc.addPage();
+          yPos = 20;
+        }
+        const dataFormatada = new Date(t.data_sessao).toLocaleDateString(
+          "pt-BR"
+        );
+        const linha = `${t.paciente_nome} | ${dataFormatada} | ${formatarMoeda(
+          t.valor_sessao
+        )} | ${t.status_pagamento}`;
+        doc.text(linha, 20, yPos);
+        yPos += 7;
+      });
+    } else {
+      yPos += 10;
+      doc.text("Nenhuma transação no período.", 20, yPos);
+    }
+
+    doc.save(`relatorio-financeiro-${dataInicio}-a-${dataFim}.pdf`);
+  };
+
   //listeners
   if (!token && window.location.pathname.includes("index.html")) {
     window.location.href = "login.html";
@@ -1330,52 +1399,28 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  //tela de configs senhas
-  const changePasswordForm = document.getElementById("change-password-form");
-  if (changePasswordForm) {
-    changePasswordForm.addEventListener("submit", async (event) => {
-      event.preventDefault();
+  //LÓGICA RECURSOS
+  const accordionContainer = document.querySelector(".accordion-container");
+  if (accordionContainer) {
+    accordionContainer.addEventListener("click", (event) => {
+      const header = event.target.closest(".accordion-header");
 
-      const errorMessageDiv = document.getElementById("password-error-message");
-      errorMessageDiv.classList.add("hidden");
+      if (!header) return;
+      const item = header.parentElement;
 
-      const senha_antiga = document.getElementById("senha-antiga").value;
-      const nova_senha = document.getElementById("nova-senha").value;
-      const confirmar_nova_senha = document.getElementById(
-        "confirmar-nova-senha"
-      ).value;
-
-      if (nova_senha !== confirmar_nova_senha) {
-        errorMessageDiv.textContent =
-          "A nova senha e a confirmação não correspondem.";
-        errorMessageDiv.classList.remove("hidden");
-        return;
-      }
-
-      try {
-        const response = await fetch(
-          "http://localhost:3000/api/terapeutas/atualizar-senha",
-          {
-            method: "PUT",
-            headers: getAuthHeaders(),
-            body: JSON.stringify({
-              senha_antiga,
-              nova_senha,
-            }),
-          }
-        );
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.error || "Ocorreu um erro.");
+      document.querySelectorAll(".accordion-item").forEach((otherItem) => {
+        if (otherItem !== item && otherItem.classList.contains("open")) {
+          otherItem.classList.remove("open");
+          otherItem.querySelector(".accordion-content").style.paddingTop = "0";
         }
+      });
 
-        alert(data.message);
-        changePasswordForm.reset();
-      } catch (error) {
-        errorMessageDiv.textContent = error.message;
-        errorMessageDiv.classList.remove("hidden");
+      item.classList.toggle("open");
+
+      if (item.classList.contains("open")) {
+        item.querySelector(".accordion-content").style.paddingTop = "1rem";
+      } else {
+        item.querySelector(".accordion-content").style.paddingTop = "0";
       }
     });
   }

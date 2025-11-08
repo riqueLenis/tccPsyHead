@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <title>PsyHead</title>
     <link
       rel="stylesheet"
@@ -64,7 +65,7 @@
                 Atendimentos</a
               >
             </li>
-            <li class="mb-2">
+            <!--<li class="mb-2">
               <a
                 href="#"
                 id="avaliacoes-link"
@@ -72,7 +73,7 @@
                 ><i class="fas fa-star mr-3 text-lg"></i> Avaliações dos
                 Atendimentos</a
               >
-            </li>
+            </li>-->
             <li class="mb-2">
               <a
                 href="#"
@@ -92,13 +93,13 @@
               >
             </li>
             <li class="mb-2">
-              <a
-                href="#"
-                id="config-link"
-                class="flex items-center p-3 rounded-lg hover:bg-white/10 transition-colors duration-200"
-                ><i class="fas fa-cog mr-3 text-lg"></i> Configurações</a
-              >
-            </li>
+              <a href="#" 
+              id="recursos-link" 
+              class="flex items-center p-3 rounded-lg hover:bg-white/10 transition-colors duration-200">
+              <i class="fas fa-book-open mr-3 text-lg">
+              </i> Recursos
+            </a>
+          </li>
             <li class="mb-2">
               <a
                 href="#"
@@ -120,8 +121,6 @@
             <img src="assets/logoPsy.png" class="logoPsy" />
           </div>
           <div class="user-info">
-            <a href="#" class="notification-bell">
-              <i class="fas fa-bell"></i>
               <!--<span class="notification-badge">3</span>-->
             </a>
             <div class="user-avatar">
@@ -711,9 +710,7 @@
                 </div>
               </div>
               <div class="stat-card">
-                <div class="stat-card-icon icon-avaliacoes">
-                  <i class="fas fa-hourglass-half"></i>
-                </div>
+                
                 <div class="stat-card-info">
                   <span class="stat-card-title">A Receber (Pendente)</span>
                   <span id="a-receber" class="stat-card-value">R$ 0,00</span>
@@ -771,7 +768,7 @@
             </div>
           </section>
 
-          <section id="avaliacoes-section" class="content-section hidden">
+          <!--<section id="avaliacoes-section" class="content-section hidden">
             <div class="page-header">
               <h2 class="section-title">Avaliações dos Atendimentos</h2>
             </div>
@@ -791,7 +788,7 @@
                 </div>
               </div>
             </div>
-          </section>
+          </section>-->
 
           <section id="relatorios-section" class="content-section hidden">
             <div class="page-header">
@@ -835,13 +832,19 @@
 
             <div id="relatorio-resultado-container" class="mt-8 hidden">
               <h3 class="form-section-title">Resultados para o Período</h3>
-
               <div id="relatorio-summary-grid" class="stats-grid"></div>
 
               <div
                 class="transactions-container bg-white p-6 rounded-lg shadow-md"
               >
                 <h3 class="form-section-title">Transações no Período</h3>
+                <div class="mb-4">
+                <button id="download-pdf-btn" class="btn btn-secondary hidden">
+                  <i class="fas fa-file-pdf mr-2"></i>
+                    Baixar relatório em PDF
+                  </i>
+                </button>
+              </div>
                 <table class="transactions-table">
                   <thead>
                     <tr>
@@ -857,60 +860,68 @@
             </div>
           </section>
 
-          <section id="config-section" class="content-section hidden">
-            <div class="page-header">
-              <h2 class="section-title">Configurações da Conta</h2>
-            </div>
+          <section id="recursos-section" class="content-section hidden">
+    <div class="page-header">
+        <h2 class="section-title">Central de Recursos</h2>
+    </div>
 
-            <div class="bg-white p-6 rounded-lg shadow-md max-w-2xl mx-auto">
-              <h3 class="form-section-title">Alterar Senha</h3>
-              <form id="change-password-form" class="space-y-4 mt-4">
-                <div class="form-group">
-                  <label for="senha-antiga" class="form-label"
-                    >Senha Atual</label
-                  >
-                  <input
-                    type="password"
-                    id="senha-antiga"
-                    name="senha_antiga"
-                    required
-                    class="form-input"
-                  />
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h3 class="form-section-title">Como Usar o PsyHead (FAQ)</h3>
+            <div class="accordion-container mt-4 space-y-3">
+
+                <div class="accordion-item">
+                    <button class="accordion-header">
+                        <span>Como o paciente vê a sessão que eu agendei?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <p>Simples! Desde que você (Admin) tenha feito o "Vínculo" (Passo 3 do item anterior), o sistema faz tudo sozinho.</p>
+                        <p class="mt-2">Quando o Terapeuta agenda uma sessão para o <strong>Perfil</strong>, o sistema entende qual <strong>Login</strong> está vinculado àquele perfil. Quando o Paciente acessar com seu login, ele verá a sessão automaticamente em sua agenda.</p>
+                    </div>
                 </div>
-                <div class="form-group">
-                  <label for="nova-senha" class="form-label">Nova Senha</label>
-                  <input
-                    type="password"
-                    id="nova-senha"
-                    name="nova_senha"
-                    required
-                    class="form-input"
-                  />
+
+                <div class="accordion-item">
+                    <button class="accordion-header">
+                        <span>Qual a diferença entre Admin, Terapeuta e Paciente?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <ul class="list-disc list-inside">
+                            <li><strong>Admin (Gestor):</strong> O "Síndico". Vê tudo, gerencia tudo. Pode criar Terapeutas e atribuir pacientes a eles.</li>
+                            <li><strong>Terapeuta:</strong> Vê e gerencia <strong>apenas</strong> os pacientes que foram atribuídos a ele. Não vê finanças ou pacientes de outros terapeutas.</li>
+                            <li><strong>Paciente:</strong> Vê <strong>apenas</strong> a sua própria agenda e mais nada.</li>
+                        </ul>
+                    </div>
                 </div>
-                <div class="form-group">
-                  <label for="confirmar-nova-senha" class="form-label"
-                    >Confirmar Nova Senha</label
-                  >
-                  <input
-                    type="password"
-                    id="confirmar-nova-senha"
-                    name="confirmar_nova_senha"
-                    required
-                    class="form-input"
-                  />
-                </div>
-                <div
-                  id="password-error-message"
-                  class="error-message text-center hidden"
-                ></div>
-                <div class="form-actions pt-4">
-                  <button type="submit" class="btn btn-primary">
-                    Salvar Nova Senha
-                  </button>
-                </div>
-              </form>
+
             </div>
-          </section>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h3 class="form-section-title">Boas Práticas Clínicas</h3>
+            <div class="space-y-4 mt-4">
+
+                <div class="article-card">
+                    <h4 class="article-title">Anotações de Sessão Eficazes</h4>
+                    <p class="article-body">Lembre-se do modelo <strong>SOAP</strong> (Subjetivo, Objetivo, Avaliação, Plano). Foque em fatos e observações, evitando julgamentos. Suas anotações são um documento legal; mantenha-as profissionais, concisas e seguras.</p>
+                </div>
+                
+                <div class="article-card">
+                    <h4 class="article-title">Ética Digital e Privacidade</h4>
+                    <p class="article-body">A segurança do PsyHead é sua primeira linha de defesa, mas a responsabilidade é compartilhada. Use senhas fortes, nunca compartilhe seu login e sempre use o sistema em uma rede segura. Lembre-se: a privacidade do paciente é sua maior responsabilidade ética.</p>
+                </div>
+
+                <div class="article-card">
+                    <h4 class="article-title">Gestão de Pagamentos Pendentes</h4>
+                    <p class="article-body">Seja claro sobre suas políticas de pagamento desde a primeira sessão. Se um pagamento atrasar, aborde o tema de forma empática, mas firme. Use a tela "Gestão Financeira" para acompanhar os status e lembre-se que a gestão da clínica também faz parte do cuidado terapêutico.</p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
 
           <section id="usuarios-section" class="content-section hidden">
             <div class="page-header">

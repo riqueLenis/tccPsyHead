@@ -30,7 +30,7 @@ const verificarToken = (req, res, next) => {
 
   jwt.verify(
     token,
-    process.env.JWT_SECRET || "seu_segredo_super_secreto",
+    process.env.JWT_SECRET || "hash123",
     (err, terapeuta) => {
       if (err) {
         return res.sendStatus(403);
@@ -114,7 +114,7 @@ app.post("/api/auth/login", async (req, res) => {
         email: terapeuta.email,
         role: userRole,
       },
-      process.env.JWT_SECRET || "seu_segredo_super_secreto",
+      process.env.JWT_SECRET || "hash123",
       {
         expiresIn: "8h",
       }
@@ -332,7 +332,6 @@ app.get("/api/dashboard/stats", verificarToken, async (req, res) => {
       pacientes_ativos: 0,
       sessoes_hoje: 0,
       faturamento_mes: 0,
-      avaliacoes_pendentes: 0,
     });
   }
 
@@ -1208,109 +1207,6 @@ app.post("/api/relatorios/financeiro", verificarToken, async (req, res) => {
   }
 });
 
-//rotas das avaliacoes
-app.post(
-  "/api/sessoes/:sessaoId/avaliacao",
-  verificarToken,
-  async (req, res) => {
-    const { sessaoId } = req.params;
-    const { nota_geral, comentarios_positivos, pontos_a_melhorar } = req.body;
-
-    if (!nota_geral)
-      return res.status(400).json({
-        error: "A nota geral é obrigatória.",
-      });
-
-    try {
-      const queryText = `
-            INSERT INTO avaliacoes (sessao_id, nota_geral, comentarios_positivos, pontos_a_melhorar, status)
-            VALUES ($1, $2, $3, $4, 'Respondida')
-            RETURNING *;
-        `;
-      const values = [
-        sessaoId,
-        nota_geral,
-        comentarios_positivos,
-        pontos_a_melhorar,
-      ];
-      const result = await pool.query(queryText, values);
-      res.status(201).json({
-        message: "Avaliação registrada com sucesso!",
-        avaliacao: result.rows[0],
-      });
-    } catch (error) {
-      console.error("Erro ao registrar avaliação:", error);
-      res.status(500).json({
-        error: "Erro interno do servidor.",
-      });
-    }
-  }
-);
-//continuacao rota avaliacao
-app.get(
-  "/api/sessoes/:sessaoId/avaliacao",
-  verificarToken,
-  async (req, res) => {
-    const { sessaoId } = req.params;
-    try {
-      const queryText = "SELECT * FROM avaliacoes WHERE sessao_id = $1;";
-      const result = await pool.query(queryText, [sessaoId]);
-      if (result.rows.length === 0) {
-        return res.status(404).json({
-          message: "Nenhuma avaliação encontrada para esta sessão.",
-        });
-      }
-      res.status(200).json(result.rows[0]);
-    } catch (error) {
-      console.error("Erro ao buscar avaliação:", error);
-      res.status(500).json({
-        error: "Erro interno do servidor.",
-      });
-    }
-  }
-);
-
-//rotas das avaliacoes pendentes
-app.get("/api/avaliacoes/pendentes", verificarToken, async (req, res) => {
-  try {
-    const queryText = `
-            SELECT s.id, s.data_sessao, p.nome_completo AS paciente_nome
-            FROM sessoes s
-            JOIN pacientes p ON s.paciente_id = p.id
-            LEFT JOIN avaliacoes a ON s.id = a.sessao_id
-            WHERE s.data_sessao < NOW() AND a.id IS NULL
-            ORDER BY s.data_sessao DESC;
-        `;
-    const result = await pool.query(queryText);
-    res.status(200).json(result.rows);
-  } catch (error) {
-    console.error("Erro ao buscar avaliações pendentes:", error);
-    res.status(500).json({
-      error: "Erro interno do servidor.",
-    });
-  }
-});
-
-//rota para lisya as avaliacoes recebidas
-app.get("/api/avaliacoes/recebidas", verificarToken, async (req, res) => {
-  try {
-    const queryText = `
-            SELECT a.id, a.nota_geral, a.comentarios_positivos, s.data_sessao, p.nome_completo AS paciente_nome
-            FROM avaliacoes a
-            JOIN sessoes s ON a.sessao_id = s.id
-            JOIN pacientes p ON s.paciente_id = p.id
-            ORDER BY s.data_sessao DESC;
-        `;
-    const result = await pool.query(queryText);
-    res.status(200).json(result.rows);
-  } catch (error) {
-    console.error("Erro ao buscar avaliações recebidas:", error);
-    res.status(500).json({
-      error: "Erro interno do servidor.",
-    });
-  }
-});
-
 //rota pra gereciar equipe
 app.post(
   "/api/usuarios",
@@ -1380,52 +1276,6 @@ app.post(
     }
   }
 );
-
-// rota pro terapeuta atualizar a  propria senha
-app.put("/api/terapeutas/atualizar-senha", verificarToken, async (req, res) => {
-  const { senha_antiga, nova_senha } = req.body;
-  const terapeutaId = req.terapeuta.id;
-
-  if (!senha_antiga || !nova_senha) {
-    return res.status(400).json({
-      error: "Todos os campos são obrigatórios.",
-    });
-  }
-  try {
-    const result = await pool.query(
-      "SELECT senha_hash FROM terapeutas WHERE id = $1",
-      [terapeutaId]
-    );
-    if (result.rows.length === 0) {
-      return res.status(404).json({
-        error: "Terapeuta não encontrado.",
-      });
-    }
-    const senhaHashAtual = result.rows[0].senha_hash;
-    const senhaAntigaValida = await bcrypt.compare(
-      senha_antiga,
-      senhaHashAtual
-    );
-    if (!senhaAntigaValida) {
-      return res.status(401).json({
-        error: "A senha antiga está incorreta.",
-      });
-    }
-    const novaSenhaHash = await bcrypt.hash(nova_senha, 10);
-    await pool.query("UPDATE terapeutas SET senha_hash = $1 WHERE id = $2", [
-      novaSenhaHash,
-      terapeutaId,
-    ]);
-    res.status(200).json({
-      message: "Senha atualizada com sucesso!",
-    });
-  } catch (error) {
-    console.error("Erro ao atualizar senha:", error);
-    res.status(500).json({
-      error: "Erro interno do servidor.",
-    });
-  }
-});
 
 app.listen(PORT, () => {
   console.log(`Servidor do PsyHead rodando na porta ${PORT}`);
