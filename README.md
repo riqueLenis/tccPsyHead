@@ -1,6 +1,6 @@
 # PsyHead – Sistema Psicólogos e Terapeutas
 
-O **PsyHead** é um sistema web desenvolvido para otimizar a gestão de clínicas de psicologia.  
+O **PsyHead** é um sistema web desenvolvido para otimizar a gestão de psicólogos e terapeutas.  
 Ele centraliza informações, facilita a comunicação entre terapeutas e responsáveis e oferece recursos para acompanhamento clínico, financeiro e administrativo.
 
 ---
